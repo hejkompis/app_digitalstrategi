@@ -4,7 +4,7 @@
 
 		static public function fallback() {
 
-			header('Location: /user/showlist'); die;
+			//header('Location: /user/showlist'); die;
 
 		}
 
