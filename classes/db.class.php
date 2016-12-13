@@ -4,11 +4,20 @@
 
 		private static $instance = null, $prev_results = [], $mysqli;
 		public static $con, $user;
-		private $db = ['url' => 'localhost', 'user' => 'root', 'password' => 'root', 'database' => 'projektsajten'];
-		// private $db = ['url' => 'mysql410.loopia.se', 'user' => 'hapyak@d143104', 'password' => 'hapyak2016', 'database' => 'digitalstrategi_se_db_6'];
+		//private $db = ['url' => 'localhost', 'user' => 'root', 'password' => 'root', 'database' => 'projektsajten'];
+		// private $db = ['url' => 'mysql525.loopia.se', 'user' => 'dss@d160488', 'password' => 'OL4c3P3nodej', 'database' => 'digitalstrategi_se_db_7'];
 
 		private function __construct() {
-			self::$mysqli = new mysqli($this->db['url'], $this->db['user'], $this->db['password'], $this->db['database']);
+
+			if(ROOT == "projektsajten.dev") {
+				$db = ['url' => 'localhost', 'user' => 'root', 'password' => 'root', 'database' => 'projektsajten'];
+			}
+			else {
+				$db = ['url' => 'mysql525.loopia.se', 'user' => 'dss@d160488', 'password' => 'OL4c3P3nodej', 'database' => 'digitalstrategi_se_db_7'];
+			}
+
+			//self::$mysqli = new mysqli($this->db['url'], $this->db['user'], $this->db['password'], $this->db['database']);
+			self::$mysqli = new mysqli($db['url'], $db['user'], $db['password'], $db['database']);
 			self::$mysqli->query("SET NAMES 'utf8'");
 			self::$con = self::con();
 		}
