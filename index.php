@@ -1,4 +1,4 @@
- <?php
+<?php
 
     define('gapi_email', 'projektsajten-acces@dss-projektstatistik.iam.gserviceaccount.com');
     define('gapi_pass', 'DSS_Projektstatistik-46c29dda9497.p12');
