@@ -1,3 +1,4 @@
 <?php
 
-    echo 'hej';
+    header('Location: https://www.google.com');
+    die();
