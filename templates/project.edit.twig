@@ -1,0 +1,96 @@
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-xs-12">
+
+			<h2>Redigera {{project.name}}</h2>
+
+			<form action="/project/update/" class="form" method="post">
+
+				<input type="hidden" name="redirect_url" id="redirect_url" value="{{http_referer}}" />
+
+				<input type="hidden" name="id" id="id" value="{{project.id}}" />
+
+				<div class="form-group">
+
+					<label for="name">Namn</label>
+					<input type="text" class="form-control" name="name" id="name" value="{{project.name}}" placeholder="Ex: Mitt projekt" />
+
+				</div>
+
+				<div class="row">
+
+					<div class="col-xs-12 col-sm-8 col-md-6">
+
+						<label for="name">Datumspann för kampanj (lämna slutdatum tom för löpande kampanj)</label>
+						<div class="input-group input-daterange">
+							<input type="text" name="start_date" class="form-control" value="{{project.start_date|date("Y-m-d")}}">
+							<span class="input-group-addon">to</span>
+							<input type="text" name="end_date" class="form-control" value="{{project.end_date|date("Y-m-d")}}">
+						</div>
+
+					</div>
+
+				</div>
+
+				<script type="text/javascript">
+
+					$('.input-daterange input').each(function() {
+						$(this).datepicker({
+    						format: "yyyy-mm-dd",
+						    weekStart: 1,
+						    language: "sv",
+						    todayBtn: "linked",
+						    todayHighlight: true
+						});
+					});
+
+				</script>
+
+				<div class="form-group">
+
+					{% if ga_accounts %}
+
+						{% for ga_account in ga_accounts %}
+
+							{% for profile_id, profile_name in ga_account.profiles %}
+
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" name="ga_accounts[]" value="{{profile_id}}" 
+
+										{% if profile_id in active_ga_accounts %}
+											checked="checked"
+										{% endif %}
+										>
+										{{ga_account.name}} / {{profile_name}} ({{ga_account.id}})
+									</label>
+								</div>
+
+							{% endfor %}							
+
+						{% endfor %}
+
+					{% else %}
+
+						Inga Google Analytics-konton kopplade. Då blir det inte mycket kul här inte.					
+
+					{% endif %}
+
+
+				</div>
+
+				<div class="form-group">
+
+					<input type="submit" class="btn btn-primary" value="Uppdatera" />
+
+				</div>
+
+			</form>
+
+		</div>
+
+	</div>
+
+</div>

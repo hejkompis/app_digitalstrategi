@@ -1,0 +1,139 @@
+<div class="container">
+
+	<div class="row m-b-md">
+
+		<div class="col-xs-12 col-sm-6">
+
+			<h2>Filmer</h2>
+
+		</div>
+
+		{% if current_user.admin %}
+
+		<div class="col-xs-12 col-sm-6 text-right">
+
+			<a class="btn btn-primary-outline p-x" type="button" href="/dashboard/addtrack/">Lägg till</a>
+		
+		</div>
+
+		{% endif %}
+
+	</div>
+
+	<div class="row">
+
+		<div class="col-xs-12">	
+
+			<div class="table-responsive">
+				
+				<table class="table">
+
+					{% if tracks %}
+
+						<thead>
+
+							<tr>
+
+								<th>Namn</th>
+								<th>Visas</th>
+								<th>Fullständiga</th>
+								<th>Uppdateras fr.o.m.</th>
+								<th>Uppdateras t.o.m.</th>
+								<th>Senaste uppd.</th>
+								{% if current_user.admin %}
+									<th>Radera</th>
+									<th>Redigera</th>
+									<th>Svarande</th>
+									<th>Aktiv</th>
+								{% endif %}
+
+							</tr>
+
+						</thead>
+						<tbody>
+
+							{% for track in tracks %}
+
+								<tr>
+																	
+									<td><a href="/dashboard/showtrack/?id={{track.id}}">{{track.name}}</a></td>
+									<td>
+										{{track.online_respondents|length}}/{{track.respondents|length}}
+										{% if track.has_specific_respondents %}
+											<a class="m-l-sm" href="/dashboard/showspecificrespondents/?id={{track.id}}"><i class="fa fa-user-plus" aria-hidden="true"></i></a>
+										{% endif %}
+									</td>
+									<td>
+										{{track.complete_respondents|length}}/{{track.respondents|length}}
+									</td>
+									<td>{% if track.start_date == 0 %}Start{% else %}{{track.start_date|date('Y-m-d')}}{% endif %}</td>
+									<td>{% if track.end_date == 0 %}Löpande{% else %}{{track.end_date|date('Y-m-d')}}{% endif %}</td>
+									<td>{{track.last_update|date('Y-m-d H:i', "Europe/Paris")}}</td>
+									{% if current_user.admin %}
+
+										<td>
+											<a href="/track/delete/?id={{track.id}}" data-type="confirm" data-message="Radera film och all tillhörande statistik?"><i class="fa fa-trash-o fa-fw" aria-hidden="true"></i></a>
+										</td>
+										<td>
+											<a href="/dashboard/edittrack/?id={{track.id}}"><i class="fa fa-pencil-square-o fa-fw" aria-hidden="true"></i></a>
+										</td>
+										<td>
+											<a href="/dashboard/showrespondents/?id={{track.id}}"><i class="fa fa-users fa-fw" aria-hidden="true"></i></a>
+										</td>
+										<td>
+											<a href="#" data-type="json-changestatus" data-href="/track/json_changestatus/?id={{track.id}}">
+
+											{% if track.online %}
+
+												<i class="fa fa-check-square-o fa-fw"></i>
+
+											{% else %}
+
+												<i class="fa fa-square-o fa-fw"></i>
+
+											{% endif %}
+
+											</a>
+										</td>
+
+									{% endif %}
+
+								</tr>
+
+							{% endfor %}
+
+						</tbody>
+
+					{% else %}
+
+						<thead>
+
+							<tr>
+
+								<th></th>
+
+							</tr>
+
+						</thead>
+
+						<tbody>
+
+							<tr>
+									
+								<td>Inga filmer</td>
+
+							</tr>
+
+						</tbody>
+
+					{% endif %}
+
+				</table>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</div>

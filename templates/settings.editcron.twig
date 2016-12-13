@@ -1,0 +1,98 @@
+{% if not current_user.admin %}
+	<script>window.location.href = "/"</script>
+{% endif %}
+
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-xs-12">
+
+			<h2>Automatiska uppdateringar</h2>
+
+			<table class="table table-striped">
+
+				{% if tracks %}
+
+					<thead>
+
+						<tr>
+
+							<th>Namn</th>
+							<th>Uppdateras fr.o.m.</th>
+							<th>Uppdateras t.o.m.</th>
+							<th>Senaste uppd.</th>
+							<th>Uppdateras</th>
+
+						</tr>
+
+					</thead>
+					<tbody>
+
+						{% for track in tracks %}
+
+							<tr>
+								
+								<tr>
+								
+								<td>
+									<a href="/dashboard/showtrack/?id={{track.id}}">{{track.name}}</a>
+								</td>
+								<td>{% if track.start_date == 0 %}Start{% else %}{{track.start_date|date('Y-m-d')}}{% endif %}</td>
+								<td>{% if track.end_date == 0 %}Löpande{% else %}{{track.end_date|date('Y-m-d')}}{% endif %}</td>
+								<td>{{track.last_update|date('Y-m-d H:i', "Europe/Paris")}}</td>
+								<td>
+									<a href="#" data-type="json-changestatus" data-href="/track/json_changeupdatestatus/?id={{track.id}}">
+
+									{% if track.is_updated %}
+
+										<i class="fa fa-check-square-o fa-fw"></i>
+
+									{% else %}
+
+										<i class="fa fa-square-o fa-fw"></i>
+
+									{% endif %}
+
+									</a>
+								</td>
+
+							</tr>
+
+							</tr>
+
+						{% endfor %}
+
+					</tbody>
+
+				{% else %}
+
+					<thead>
+
+						<tr>
+
+							<th></th>
+
+						</tr>
+
+					</thead>
+
+					<tbody>
+
+						<tr>
+								
+							<td>Inga filmer</td>
+
+						</tr>
+
+					</tbody>
+
+				{% endif %}
+
+			</table>
+
+		</div>
+
+	</div>
+
+</div>

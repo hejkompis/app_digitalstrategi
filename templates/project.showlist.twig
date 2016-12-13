@@ -1,0 +1,118 @@
+<div class="container">
+
+	<div class="row m-b-md">
+
+		<div class="col-xs-12 col-sm-6">
+
+			<h2>Projekt</h2>
+
+		</div>
+
+		{% if current_user.admin %}
+
+		<div class="col-xs-12 col-sm-6 text-right">
+
+			<a class="btn btn-primary-outline p-x" type="button" href="/project/add/">Lägg till</a>
+		
+		</div>
+
+		{% endif %}
+
+	</div>
+
+	<div class="row">
+
+		<div class="col-xs-12">			
+
+			<div class="table-responsive">
+				
+				<table class="table">
+
+					{% if projects %}
+
+						<thead>
+
+							<tr>
+
+								<th>Namn</th>
+								{% if current_user.admin %}
+									<th>Kund</th>
+									<th>Radera</th>
+									<th>Redigera</th>
+									<th>Aktiv</th>
+								{% endif %}
+
+							</tr>
+
+						</thead>
+						<tbody>
+
+							{% for project in projects %}
+
+								<tr>
+									
+									<td><a href="/project/show/?id={{project.id}}">{{project.name}}</a></td>
+									{% if current_user.admin %}
+										<td>{{project.user.company}}</td>
+										<td>
+											<a href="/project/delete/?id={{project.id}}" data-type="confirm" data-message="Radera projekt?"><i class="fa fa-trash-o fa-fw" aria-hidden="true"></i></a>
+										</td>
+										<td>
+											<a href="/project/edit/?id={{project.id}}"><i class="fa fa-pencil-square-o fa-fw" aria-hidden="true"></i></a>
+										</td>
+										<td>
+											<a href="#" data-type="json-changestatus" data-href="/project/json_changestatus/?id={{project.id}}">
+
+											{% if project.online %}
+
+												<i class="fa fa-check-square-o fa-fw"></i>
+
+											{% else %}
+
+												<i class="fa fa-square-o fa-fw"></i>
+
+											{% endif %}
+
+											</a>
+										</td>
+									{% endif %}
+
+								</tr>
+
+							{% endfor %}
+
+						</tbody>
+
+					{% else %}
+
+						<thead>
+
+							<tr>
+
+								<th></th>
+
+							</tr>
+
+						</thead>
+
+						<tbody>
+
+							<tr>
+									
+								<td>Inga projekt</td>
+
+							</tr>
+
+						</tbody>
+
+					{% endif %}
+
+				</table>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</div>

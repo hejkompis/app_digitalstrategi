@@ -1,0 +1,78 @@
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-xs-12">
+
+			<h2>Nytt konto{% if project %} för {{project.name}}{% endif %}</h2>
+
+			<form action="/account/save/" class="form" method="post">
+
+				<input type="hidden" name="redirect_url" id="redirect_url" value="{{http_referer}}" />
+
+				{% if project %}
+					<input type="hidden" name="project_id" id="project_id" value="{{project.id}}" />
+				{% endif %}
+
+				<div class="form-group">
+
+					<label for="accountId">Account Id</label>
+					<select class="form-control" id="accountId" disabled="true"></select>
+
+				</div>
+
+				<div class="form-group">
+
+						<label for="propertyId">Property Id</label>
+						<select class="form-control" id="propertyId" disabled="true"></select>
+
+				</div>
+
+				<div class="form-group">
+
+						<label for="viewId">View Id</label>
+						<select class="form-control" id="viewId" disabled="true"></select>
+
+				</div>
+
+				<div class="form-group">
+
+					<label for="name">Google Analytics UID</label>
+					<input type="text" class="form-control req" name="ga_uid" id="ga_uid" placeholder="Ex: GA-12345678-1" />
+
+				</div>
+
+				<div class="form-group">
+
+					<label for="name">Google Analytics View-ID</label>
+					<input type="text" class="form-control req" name="ga_view" id="ga_view" placeholder="Ex: 123456789" />
+
+				</div>
+
+				<div class="form-group">
+
+					<label for="name">Kampanjens startdatum</label>
+					<input type="text" class="form-control" name="startdate" id="startdate" placeholder="Ex: 2016-01-01" />
+
+				</div>
+
+				<div class="form-group">
+
+					<label for="name">Kampanjens slutdatum</label>
+					<input type="text" class="form-control" name="enddate" id="enddate" placeholder="Ex: 2016-12-31" />
+
+				</div>
+
+				<div class="form-group">
+
+					<input type="submit" class="btn btn-primary p-x" value="Spara" />
+
+				</div>
+
+			</form>
+
+		</div>
+
+	</div>
+
+</div>

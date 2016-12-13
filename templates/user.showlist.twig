@@ -1,0 +1,134 @@
+{% if not current_user.admin %}
+	<script>window.location.href = "/"</script>
+{% endif %}
+
+<div class="container">
+
+	<div class="row m-b-md">
+
+		<div class="col-xs-12 col-sm-6">
+
+			<h2>Användare</h2>
+
+		</div>
+
+		<div class="col-xs-12 col-sm-6 text-right">
+
+			<a class="btn btn-primary-outline p-x" href="/user/add" type="button">Lägg till</a>
+		
+		</div>
+
+	</div>
+
+	<div class="row">
+
+		<div class="col-xs-12">	
+
+			<div class="table-responsive">
+				
+				<table class="table">
+
+					{% if users %}
+
+						<thead>
+
+							<tr>
+
+								<th class="header">Namn</th>
+								<th class="header">Företag</th>
+								<th class="header">Administratör</th>
+								<th class="header">Radera</th>
+								<th class="header">Redigera</th>
+								<th class="header">Aktiv</th>
+
+							</tr>
+
+						</thead>
+						<tbody>
+
+							{% for user in users %}
+
+								<tr>
+									
+									<td><a href="/project/showlist/?id={{user.id}}">{{user.name}}</a></td>
+									<td>{{user.company}}</td>
+									<td>{% if user.admin %}<i class="fa fa-check" aria-hidden="true"></i>{% endif %}</td>
+									<td>
+										{% if current_user.id != user.id %}
+											<a href="/user/delete/?id={{user.id}}" data-type="confirm" data-message="Radera användare och all tillhörande statistik?"><i class="fa fa-trash-o fa-fw" aria-hidden="true"></i></a>
+										{% endif %}
+									</td>
+									<td>
+										<a href="/user/edit/?id={{user.id}}"><i class="fa fa-pencil-square-o fa-fw" aria-hidden="true"></i></a>
+									</td>
+									<td>
+										{% if current_user.id != user.id %}
+											
+											<a href="#" data-type="json-changestatus" data-href="/user/json_changestatus/?id={{user.id}}">
+
+											{% if user.online %}
+
+												<i class="fa fa-check-square-o fa-fw"></i>
+
+											{% else %}
+
+												<i class="fa fa-square-o fa-fw"></i>
+
+											{% endif %}
+
+										{% else %}
+
+											{% if user.online %}
+
+												<i class="fa fa-check-square-o fa-fw disabled-text"></i>
+
+											{% else %}
+
+												<i class="fa fa-square-o fa-fw disabled-text"></i>
+
+											{% endif %}
+
+										{% endif %}
+
+										</a>
+									</td>
+
+								</tr>
+
+							{% endfor %}
+
+						</tbody>
+
+					{% else %}
+
+						<thead>
+
+							<tr>
+
+								<th></th>
+
+							</tr>
+
+						</thead>
+
+						<tbody>
+
+							<tr>
+									
+								<td>Inga användare</td>
+
+							</tr>
+
+						</tbody>
+
+					{% endif %}
+
+				</table>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</div>

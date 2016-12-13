@@ -1,0 +1,185 @@
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-xs-12">
+
+			<h2 class="dashhead-title">Resultat för {{track.name}} ({{track.no_of_questions}} frågor)</h2>
+			{% if track.video_url %}
+				<p>Se filmen på <a target="_blank" href="{{track.video_url}}">{{track.video_url}}</a>
+			{% endif %}
+			{% if current_user.admin %}
+
+				<div class="row">
+
+					<div class="col-xs-12 text-right">
+
+						<a href="/dashboard/edittrack/?id={{track.id}}" class="btn btn-primary-outline p-x m-r-sm">Redigera</a>
+						<a href="/track/update_data/?id={{track.id}}" class="btn btn-primary-outline p-x">Uppdatera nu</a>
+
+					</div>
+
+				</div>
+
+			{% endif %}
+
+			<div class="row">
+
+				<div class="col-xs-12">
+
+					<div class="hr-divider m-t-md m-b-md">
+						<h3 class="hr-divider-content hr-divider-heading">
+							Översikt
+						</h3>
+					</div>
+
+				</div>
+
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+
+					<canvas
+						class="ex-graph"
+						width="200" height="200"
+						data-chart="doughnut"
+						data-value="[{ value: {{track.summary.correct}}, color: '#1bc98e', label: 'Rätt' }, { value: {{track.summary.false}}, color: '#e64759', label: 'Fel' }]"
+						data-segment-stroke-color="#252830">
+					</canvas>
+
+				</div>
+
+			</div>
+
+			<div class="row">
+
+				<div class="col-xs-12">
+
+					<div class="hr-divider m-t-md m-b-md">
+						<h3 class="hr-divider-content hr-divider-heading">
+							Frågor och svar
+						</h3>
+					</div>
+
+				</div>
+
+			</div>			
+
+			{% if track.questions %}
+
+				{% for qid, question in track.questions %}
+
+						{% if question.answers %}
+
+							<div class="row">
+
+								<div class="col-xs-12">
+
+									<div class="list-group">
+
+										<h4 class="list-group-header">
+											{{question.text}}
+											<span class="pull-right text-muted">{{question.total_votes}} svar</span>
+										</h4>
+										
+										{% for answer in question.answers %}
+
+											{% if answer.votes > 0 and question.total_votes > 0 %}
+												{% set progress = (answer.votes / question.total_votes) * 100 %}
+											{% endif %}
+
+											<p class="list-group-item">
+												{{answer.text}}
+												<span class="list-group-progress" style="width: {{progress}}%; background-color: 
+													{% if answer.correct %}
+														rgba(27,201,142,0.5)
+													{% else %}
+														rgba(230,71,89,0.5)
+													{% endif %};"
+												></span>
+												<span class="pull-right text-muted">{{answer.votes}} svar</span>
+											</p>
+
+											{% set progress = 0 %}
+
+										{% endfor %}
+
+									</div>
+
+								</div>
+
+							</div>
+
+						{% endif %}
+
+					{% endfor %}
+
+				{% endif %}
+
+			<div class="hr-divider m-t-md m-b-md">
+				<h3 class="hr-divider-content hr-divider-heading">
+					Svarande
+				</h3>
+			</div>
+
+			<table class="table">
+
+				{% if track.respondents %}
+
+					<thead>
+
+						<tr>
+
+							<th class="header">Namn</th>
+							<th class="header">Påbörjades</th>
+							<th class="header">Avslutades</th>
+
+						</tr>
+
+					</thead>
+					<tbody>
+
+						{% for respondent in track.respondents if respondent.online %}
+
+							<tr>
+								
+								<td><a href="/dashboard/showrespondent/?id={{respondent.id}}">{{respondent.username}}</a></td>
+								<td>{{respondent.timestamp.startdate|date('Y-m-d H:i', "Europe/Paris")}}</td>
+								<td>{{respondent.timestamp.enddate|date('Y-m-d H:i', "Europe/Paris")}}</td>
+								
+
+							</tr>
+
+						{% endfor %}
+
+					</tbody>
+
+				{% else %}
+
+					<thead>
+
+						<tr>
+
+							<th></th>
+
+						</tr>
+
+					</thead>
+
+					<tbody>
+
+						<tr>
+								
+							<td>Inga användare</td>
+
+						</tr>
+
+					</tbody>
+
+				{% endif %}
+
+			</table>
+
+		</div>
+
+	</div>
+
+</div>

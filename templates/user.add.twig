@@ -1,0 +1,104 @@
+{% if not current_user.admin %}
+	<script>window.location.href = "/"</script>
+{% endif %}
+
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-xs-12">
+
+			<h2>Lägg till användare</h2>
+
+			<form action="/user/save/" class="form form-horizontal" method="post">
+
+				<input type="hidden" name="redirect_url" id="redirect_url" value="{{http_referer}}" />
+
+				<div class="form-group">
+
+					<div class="col-xs-12">
+
+						<label for="name">Namn</label>
+						<input type="text" class="form-control req" name="name" id="name" placeholder="Ex: Elias Knudtzon" />
+
+					</div>
+
+				</div>
+
+				<div class="form-group">
+
+					<div class="col-xs-12">
+
+						<label for="company">Företag</label>
+						<input type="text" class="form-control req" name="company" id="company" placeholder="Ex: Digiplay" />
+
+					</div>
+
+				</div>
+
+				<div class="form-group">
+
+					<div class="col-xs-12">
+
+						<label for="email">E-post</label>
+						<input type="email" class="form-control req" name="email" id="email" placeholder="Ex: elias@digiplay.se" />
+
+					</div>
+
+				</div>
+
+				<div class="form-group">
+
+					<div class="col-xs-12 col-sm-6">
+
+						<label for="password">Lösenord</label>
+						<input type="password" class="form-control req" name="password" id="password" />
+
+					</div>
+
+					<div class="col-xs-12 col-sm-6">
+
+						<label for="password_repeat">Ange lösenord igen</label>
+						<input type="password" class="form-control" name="password_repeat" id="password_repeat" />
+
+					</div>
+
+				</div>
+
+				<div class="checkbox custom-control custom-checkbox">
+
+					<label for="admin">
+						<input type="checkbox" class="" name="admin" id="admin" value="1" />
+						<span class="custom-control-indicator"></span>
+						Administratör
+					</label>
+
+				</div>
+
+				<div class="row hidden" id="req_info">
+				
+					<div class="col-xs-12">
+						
+						<strong><small>Fält markerade med * är obligatoriska<br /><br /></small></strong>
+						
+					</div>
+					
+				</div>
+
+				<div class="form-group">
+
+					<div class="col-xs-12">
+
+						<input type="submit" class="btn btn-primary" value="Uppdatera" />
+
+					</div>
+
+				</div>
+
+			</form>
+
+		</div>
+
+	</div>
+
+</div>

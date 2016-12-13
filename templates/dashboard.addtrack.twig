@@ -1,0 +1,158 @@
+{% if not current_user.admin %}
+	<script>window.location.href = "/"</script>
+{% endif %}
+
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-xs-12">
+
+			<h2>Lägg till film{% if project %} i {{project.name}}{% endif %}</h2>
+
+			<form action="/track/save/" class="form" method="post">
+
+				<input type="hidden" name="redirect_url" id="redirect_url" value="{{http_referer}}" />
+
+				{% if project %}
+					<input type="hidden" name="project_id" id="project_id" value="{{project.id}}" />
+				{% endif %}
+
+				<div class="row">
+
+					<div class="col-xs-12">
+
+						<div class="hr-divider m-t-md m-b-md">
+							<h3 class="hr-divider-content hr-divider-heading">
+								Filminställningar
+							</h3>
+						</div>
+
+					</div>
+
+				</div>
+
+				<div class="form-group">
+
+					<label for="name">Namn</label>
+					<input type="text" class="form-control req" name="name" id="name" placeholder="Ex: Min film" />
+
+				</div>
+
+				<div class="form-group">
+
+					<label for="project_key">Projekt-ID</label>
+					<input type="text" class="form-control req" name="project_key" id="project_key" placeholder="Ex: 12345" />
+
+				</div>
+
+				<div class="form-group">
+
+					<label for="track_key">Track-ID</label>
+					<input type="text" class="form-control req" name="track_key" id="track_key" placeholder="Ex: 123456" />
+
+				</div>
+
+				<div class="form-group">
+
+					<label for="video_url">Länk till video</label>
+					<input type="text" class="form-control" name="video_url" id="video_url" placeholder="Ex: https://www.vimeo.com/12345" />
+
+				</div>
+
+				<!--
+				<div class="row">
+
+					<div class="col-xs-12">
+
+						<div class="hr-divider m-t-md m-b-md">
+							<h3 class="hr-divider-content hr-divider-heading">
+								Alternativ
+							</h3>
+						</div>
+
+					</div>
+
+				</div>
+
+				<div class="checkbox custom-control custom-checkbox">
+					<label><input type="checkbox" id="specific_respondents" name="specific_respondents" value="1" />
+						<span class="custom-control-indicator"></span>
+						Möjlighet att välja ut vilka som kan göra testet
+					</label>
+				</div>
+				-->
+
+				<div class="row">
+
+					<div class="col-xs-12">
+
+						<div class="hr-divider m-t-md m-b-md">
+							<h3 class="hr-divider-content hr-divider-heading">
+								Datuminställningar
+							</h3>
+						</div>
+
+					</div>
+
+				</div>
+
+				<div class="form-group">
+
+					<div class="row">
+
+						<div class="col-xs-12 col-sm-6">
+
+							<label for="start_date">Hämta data från och med</label>
+							<input type="text" class="form-control" name="start_date" id="start_date" placeholder="Ex: 2016-04-16" disabled="disabled" />
+
+							<div class="checkbox custom-control custom-checkbox">
+								<label><input type="checkbox" id="no_start_date" name="no_start_date" value="1" checked="checked" data-type="toggle-input" data-target="start_date" />
+									<span class="custom-control-indicator"></span>
+									Sen starten
+								</label>
+							</div>
+
+						</div>
+
+						<div class="col-xs-12 col-sm-6">
+
+							<label for="end_date">Hämta data till och med</label>
+							<input type="text" class="form-control" name="end_date" id="end_date" placeholder="Ex: 2016-07-08" disabled="disabled" />
+
+							<div class="checkbox custom-control custom-checkbox">
+								<label><input type="checkbox" id="no_end_date" name="no_end_date" value="1" checked="checked" data-type="toggle-input" data-target="end_date" />
+									<span class="custom-control-indicator"></span>	
+									Uppdatera löpande
+								</label>
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				<div class="row hidden" id="req_info">
+				
+					<div class="col-xs-12">
+						
+						<strong><small>Fält markerade med * är obligatoriska<br /><br /></small></strong>
+						
+					</div>
+					
+				</div>
+
+				<div class="form-group">
+
+					<input type="submit" class="btn btn-primary" value="Spara" />
+
+				</div>
+
+			</form>
+
+		</div>
+
+	</div>
+
+</div>

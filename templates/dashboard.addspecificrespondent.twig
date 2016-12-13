@@ -1,0 +1,64 @@
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-xs-12">
+
+			<h2>Lägg till respondent</h2>
+
+			<form action="/respondent/savespecific/" class="form form-horizontal" method="post">
+
+				<input type="hidden" name="redirect_url" id="redirect_url" value="{{http_referer}}" />
+
+				<input type="hidden" id="track_id" name="track_id" value="{{track.id}}" />
+
+
+				<div class="form-group">
+
+					<div class="col-xs-12">
+
+						<label for="name">Namn</label>
+						<input type="text" class="form-control req" name="name" id="name" placeholder="Ex: Elias Knudtzon" />
+
+					</div>
+
+				</div>
+
+				<div class="form-group">
+
+					<div class="col-xs-12">
+
+						<label for="company">Unikt ID (e-postadress, anställningsnummer etc.)</label>
+						<input type="text" class="form-control req" name="respondent_id" id="respondent_id" placeholder="Ex: elias@digiplay.se" />
+
+					</div>
+
+				</div>
+
+				<div class="row hidden" id="req_info">
+				
+					<div class="col-xs-12">
+						
+						<strong><small>Fält markerade med * är obligatoriska<br /><br /></small></strong>
+						
+					</div>
+					
+				</div>
+
+				<div class="form-group">
+
+					<div class="col-xs-12">
+
+						<input type="submit" class="btn btn-primary" value="Uppdatera" />
+
+					</div>
+
+				</div>
+
+			</form>
+
+		</div>
+
+	</div>
+
+</div>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Hello Analytics Reporting API V4</title>
+  <meta name="google-signin-client_id" content="472236111441-f48qmjme17v01e7a96esilbsigc3qjgk.apps.googleusercontent.com">
+  <meta name="google-signin-scope" content="https://www.googleapis.com/auth/analytics.readonly">
+</head>
+<body>
+
+<h1>Hello Analytics Reporting API V4</h1>
+
+<p>
+  <!-- The Sign-in button. This will run `queryReports()` on success. -->
+  <div class="g-signin2" data-onsuccess="queryReports"></div>
+</p>
+
+<!-- The API response will be printed here. -->
+<textarea cols="80" rows="20" id="query-output"></textarea>
+
+<a href="https://security.google.com/settings/security/permissions" target="_blank">Revoke</a>
+
+<form>
+<input type="text" id="view_id_input" />
+<input type="submit" value="Kör" />
+</form>
+
+<script>
+
+
+
+  // Replace with your view ID.
+  var VIEW_ID = '125099522';
+
+  // Query the API and print the results to the page.
+  function queryReports() {
+    gapi.client.request({
+      path: '/v4/reports:batchGet',
+      root: 'https://analyticsreporting.googleapis.com/',
+      method: 'POST',
+      body: {
+        reportRequests: [
+          {
+            viewId: VIEW_ID,
+            dateRanges: [
+              {
+                startDate: '30daysAgo',
+                endDate: 'today'
+              }
+            ],
+            metrics: [
+              {
+                expression: 'ga:bounceRate'
+              }
+            ]
+          },
+          {
+            viewId: VIEW_ID,
+            dateRanges: [
+              {
+                startDate: '30daysAgo',
+                endDate: 'today'
+              }
+            ],
+            metrics: [
+              {
+                expression: 'ga:users'
+              }
+            ]
+          }
+        ]
+      }
+    }).then(displayResults, console.error.bind(console));
+  }
+
+  function displayResults(response) {
+    var formattedJson = JSON.stringify(response.result, null, 2);
+    //document.getElementById('query-output').value = formattedJson;
+    console.log(formattedJson);
+  }
+</script>
+
+<!-- Load the JavaScript API client and Sign-in library. -->
+<script src="https://apis.google.com/js/client:platform.js?onload=authorize"></script>
+
+</body>
+</html>

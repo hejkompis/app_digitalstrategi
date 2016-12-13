@@ -1,0 +1,5 @@
+/**
+/* VARIABLER
+/**/
+
+var gotReq = false;

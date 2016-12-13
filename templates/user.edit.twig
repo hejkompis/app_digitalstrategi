@@ -1,0 +1,124 @@
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-xs-12">
+
+			<h2>Redigera {{user.name}}</h2>
+
+			<form action="/user/update/" class="form form-horizontal" method="post">
+
+				<input type="hidden" name="redirect_url" id="redirect_url" value="{{http_referer}}" />
+
+				<input type="hidden" name="id" id="id" value="{{user.id}}" />
+
+				<div class="form-group">
+
+					<div class="col-xs-12">
+
+						<label for="name">Namn</label>
+						<input type="text" class="form-control req" name="name" id="name" value="{{user.name}}" placeholder="Ex: Elias Knudtzon" />
+
+					</div>
+
+				</div>
+
+				<div class="form-group">
+
+					<div class="col-xs-12">
+
+						<label for="company">Företag</label>
+						<input type="text" class="form-control req" name="company" id="company" value="{{user.company}}" placeholder="Ex: Digiplay" />
+
+					</div>
+
+				</div>
+
+				<div class="form-group">
+
+					<div class="col-xs-12">
+
+						<label for="email">E-post</label>
+						<input type="email" class="form-control req" name="email" id="email" value="{{user.email}}" placeholder="Ex: elias@digiplay.se" />
+
+					</div>
+
+				</div>
+
+				<div class="form-group">
+
+					<div class="col-xs-12 col-sm-6">
+
+						<label for="password">Lösenord</label>
+						<input type="password" class="form-control" name="password" id="password" />
+
+					</div>
+
+					<div class="col-xs-12 col-sm-6">
+
+						<label for="password_repeat">Ange lösenord igen</label>
+						<input type="password" class="form-control" name="password_repeat" id="password_repeat" />
+
+					</div>
+
+				</div>
+
+				{% if current_user.admin %}
+
+					{% if current_user.id == user.id %}
+
+					<div class="checkbox custom-control custom-checkbox">
+
+						<label>
+							<input type="checkbox" {% if user.admin %} checked="checked"{% endif %}disabled="disabled" />
+							<span class="custom-control-indicator"></span>
+							Administratör
+						</label>
+
+					</div>
+
+					<input type="hidden" name="admin" id="admin" value="{{current_user.admin}}" />
+
+					{% else %}
+
+					<div class="checkbox custom-control custom-checkbox">
+
+						<label for="admin">
+							<input type="checkbox" name="admin" id="admin" value="1" {% if user.admin %} checked="checked"{% endif %} />
+							<span class="custom-control-indicator"></span>
+							Administratör
+						</label>
+
+					</div>
+
+					{% endif %}
+
+				{% endif %}
+
+				<div class="row hidden" id="req_info">
+				
+					<div class="col-xs-12">
+						
+						<strong><small>Fält markerade med * är obligatoriska<br /><br /></small></strong>
+						
+					</div>
+					
+				</div>
+
+				<div class="form-group">
+
+					<div class="col-xs-12">
+
+						<input type="submit" class="btn btn-primary" value="Uppdatera" />
+
+					</div>
+
+				</div>
+
+			</form>
+
+		</div>
+
+	</div>
+
+</div>

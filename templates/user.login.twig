@@ -1,0 +1,90 @@
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4 p-t-lg">
+
+			<div class="row">
+
+				<div class="col-xs-12">
+
+					<div class="dashhead-titles">
+						<h6 class="dashhead-subtitle">Digital Strategi</h6>
+						<h2 class="dashhead-title">Logga in</h2>
+					</div>
+
+				</div>
+
+			</div>
+
+			<div class="row">
+
+				<div class="col-xs-12">
+
+					<form action="/user/dologin/" method="post" class="form">
+
+						<div class="form-group">
+
+							<label for="email">E-post</label>
+							<input type="text" name="email" id="email" class="form-control" />
+
+						</div>
+
+						<div class="form-group">
+
+							<label for="password">Lösenord</label>
+							<input type="password" name="password" id="password" class="form-control" />
+
+						</div>
+
+						<div class="form-group">
+
+							<input type="submit" class="btn btn-primary" disabled="disabled" />
+
+						</div>
+
+						{% if data.error and data.error == 'notfound' %}
+
+							<div class="statcard statcard-danger p-a-md m-b">
+								 <span class="statcard-desc">Fel e-post eller lösenord</span>
+							</div>
+
+						{% endif %}
+
+						{% if data.error and data.error == 'inactivated' %}
+
+							<div class="statcard statcard-danger p-a-md m-b">
+								 <span class="statcard-desc">Användare inaktiverad</span>
+							</div>
+
+						{% endif %}
+
+						<div class="row">
+
+							<div class="col-xs-12">
+
+								<div class="hr-divider">
+  									<h3 class="hr-divider-content hr-divider-heading"></h3>
+  								</div>
+
+  							</div>
+
+  							<div class="col-xs-12">
+
+  								<a href="/user/getpassword/">Glömt lösenord?</a>
+
+  							</div>
+
+						</div>
+
+					</form>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</div>

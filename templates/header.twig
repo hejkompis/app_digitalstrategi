@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html>
+    
+    <head>
+    
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Digital Strategi{% if title %} - {% endif %}{{title}}</title>    
+        
+        <!-- Bootstrap Dashboard Toolkit -->
+        <link href="/dist/toolkit-inverse.min.css" rel="stylesheet">
+
+        <!-- Fontawesone -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+        <!-- Daterange Picker -->
+        <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+        <!-- Daterange Picker -->
+        <link rel="stylesheet" type="text/css" href="/dist/custom.css" />
+
+        <!-- Load the JavaScript API client and Sign-in library. -->
+        <script src="https://apis.google.com/js/client:platform.js"></script>
+        
+        <script src="/dist/jquery-3.1.1.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.4.4/parsley.js"></script>
+        <script src="/dist/toolkit.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js"></script>
+        <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+
+    </head>
+    
+    <body>
+    
+        {% if current_user %}
+            {% include "menu.twig" %}
+        {% endif %}
+

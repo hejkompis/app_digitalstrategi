@@ -1,0 +1,118 @@
+<div class="container">
+
+	<div class="row m-b-md">
+
+		<div class="col-xs-12 col-sm-6">
+
+			<h2>Kunder</h2>
+
+		</div>
+
+		{% if current_user.admin %}
+
+		<div class="col-xs-12 col-sm-6 text-right">
+
+			<a class="btn btn-primary-outline p-x" type="button" href="/client/add/">Lägg till</a>
+		
+		</div>
+
+		{% endif %}
+
+	</div>
+
+	<div class="row">
+
+		<div class="col-xs-12">			
+
+			<div class="table-responsive">
+				
+				<table class="table">
+
+					{% if clients %}
+
+						<thead>
+
+							<tr>
+
+								<th>Namn</th>
+								{% if current_user.admin %}
+									<th>Användare</th>
+									<th>Radera</th>
+									<th>Redigera</th>
+									<th>Aktiv</th>
+								{% endif %}
+
+							</tr>
+
+						</thead>
+						<tbody>
+
+							{% for client in clients %}
+
+								<tr>
+									
+									<td><a href="/client/show/?id={{client.id}}">{{client.name}}</a></td>
+									{% if current_user.admin %}
+										<td>{{client.user.company}}</td>
+										<td>
+											<a href="/client/delete/?id={{client.id}}" data-type="confirm" data-message="Radera projekt?"><i class="fa fa-trash-o fa-fw" aria-hidden="true"></i></a>
+										</td>
+										<td>
+											<a href="/client/edit/?id={{client.id}}"><i class="fa fa-pencil-square-o fa-fw" aria-hidden="true"></i></a>
+										</td>
+										<td>
+											<a href="#" data-type="json-changestatus" data-href="/client/json_changestatus/?id={{client.id}}">
+
+											{% if client.online %}
+
+												<i class="fa fa-check-square-o fa-fw"></i>
+
+											{% else %}
+
+												<i class="fa fa-square-o fa-fw"></i>
+
+											{% endif %}
+
+											</a>
+										</td>
+									{% endif %}
+
+								</tr>
+
+							{% endfor %}
+
+						</tbody>
+
+					{% else %}
+
+						<thead>
+
+							<tr>
+
+								<th></th>
+
+							</tr>
+
+						</thead>
+
+						<tbody>
+
+							<tr>
+									
+								<td>Inga kunder</td>
+
+							</tr>
+
+						</tbody>
+
+					{% endif %}
+
+				</table>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</div>

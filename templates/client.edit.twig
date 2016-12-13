@@ -1,0 +1,46 @@
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-xs-12">
+
+			<h2>Redigera {{client.name}}</h2>
+
+			<form action="/client/update/" class="form" method="post">
+
+				<input type="hidden" name="redirect_url" id="redirect_url" value="{{http_referer}}" />
+
+				<input type="hidden" name="id" id="id" value="{{client.id}}" />
+
+				<div class="form-group">
+
+					<label for="name">Namn</label>
+					<input type="text" class="form-control" name="name" id="name" value="{{client.name}}" placeholder="Ex: Mitt projekt" />
+
+				</div>
+
+				<div class="form-group">
+
+					<label for="user_id">Användare</label>
+					<select class="form-control custom-select" name="user_id" id="user_id">
+						<option value="0">Välj användare</option>
+						{% for user in users if not user.admin %}
+							<option value="{{user.id}}" {% if client.user.id == user.id %} selected="selected"{% endif %}>{{user.name}}</option>
+						{% endfor %}
+					</select>
+
+				</div>
+
+				<div class="form-group">
+
+					<input type="submit" class="btn btn-primary" value="Uppdatera" />
+
+				</div>
+
+			</form>
+
+		</div>
+
+	</div>
+
+</div>

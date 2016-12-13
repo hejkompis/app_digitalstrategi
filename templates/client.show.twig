@@ -1,0 +1,113 @@
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-xs-12">
+
+			<h2>{{client.name}}</h2>
+
+		</div>
+
+	</div>
+
+	<div class="row m-t m-b">
+
+		{% if current_user.admin %}
+
+			<div class="col-xs-12 col-sm-6">
+
+				<a class="btn btn-primary p-x" type="button" href="/document/edit/?id={{client.id}}">Dokument</a>
+
+			</div>
+
+			<div class="col-xs-12 col-sm-6 text-right">
+
+				<a class="btn btn-primary-outline p-x" type="button" href="/client/edit/?id={{client.id}}">Redigera</a> <a class="btn btn-primary-outline p-x" type="button" href="/project/add/?id={{client.id}}">Lägg till</a>
+			
+			</div>
+
+		{% endif %}
+
+	</div>
+
+	<div class="row">
+
+			<table class="table table-striped">
+
+				{% if client.projects %}
+
+					<thead>
+
+						<tr>
+
+							<th>Namn</th>
+							<th>Senaste uppd.</th>
+							
+							{% if current_user.admin %}
+								<th>Radera</th>
+								<th>Redigera</th>
+							{% endif %}
+
+						</tr>
+
+					</thead>
+					<tbody>
+
+						{% for project in client.projects %}
+
+							<tr>
+								
+								<tr>
+								
+								<td>
+									<a href="/project/show/?id={{project.id}}">{{project.name}}</a>
+								</td><td>{# {{project.last_update|date('Y-m-d H:i', "Europe/Paris")}} #}</td>
+								{% if current_user.admin %}
+									<td>
+										<a href="/project/delete/?id={{project.id}}" data-type="confirm" data-message="Radera projekt och all tillhörande statistik?"><i class="fa fa-trash-o fa-fw" aria-hidden="true"></i></a>
+									</td>
+									<td>
+										<a href="/project/edit/?id={{project.id}}"><i class="fa fa-pencil-square-o fa-fw" aria-hidden="true"></i></a>
+									</td>
+									
+								{% endif %}
+
+							</tr>
+
+							</tr>
+
+						{% endfor %}
+
+					</tbody>
+
+				{% else %}
+
+					<thead>
+
+						<tr>
+
+							<th></th>
+
+						</tr>
+
+					</thead>
+
+					<tbody>
+
+						<tr>
+								
+							<td>Inga projekt</td>
+
+						</tr>
+
+					</tbody>
+
+				{% endif %}
+
+			</table>
+
+		</div>
+
+	</div>
+
+</div>

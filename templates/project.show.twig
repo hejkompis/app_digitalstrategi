@@ -1,0 +1,611 @@
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-xs-12">
+
+			<h2><a href="/client/show/?id={{project.client_id}}">{{client.name}}</a>, {{project.name}}</h2>
+
+		</div>
+
+	</div>
+
+	<div class="row m-t m-b">
+
+		{% if current_user.admin %}
+
+			<div class="col-xs-12 col-sm-4 col-md-3">
+
+				<form id="daterangepicker" method="get" action="?id={{project.id}}">
+					<input type="hidden" id="project_id" name="id" value="{{project.id}}" />
+					<input type="hidden" id="date_from" name="from" value="" />
+					<input type="hidden" id="date_to" name="to" value="" />
+				</form>
+				<div class="input-group">
+					<span class="input-group-addon">
+						<span class="icon icon-calendar"></span>
+					</span>
+					<input type="text" class="form-control" name="daterange" value="" />
+				</div>
+				
+
+				<script type="text/javascript">
+
+					$('input[name="daterange"]').daterangepicker({
+					    "locale": {
+					        "format": "YYYY-MM-DD",
+					        "separator": " – ",
+					        "applyLabel": "Uppdatera",
+					        "cancelLabel": "Avbryt",
+					        "fromLabel": "Från",
+					        "toLabel": "Till",
+					        "customRangeLabel": "Anpassad",
+					        "weekLabel": "v.",
+					        "daysOfWeek": [
+					            "Sö",
+					            "Må",
+					            "Ti",
+					            "On",
+					            "To",
+					            "Fr",
+					            "Lö"
+					        ],
+					        "monthNames": [
+					            "Januari",
+					            "Februari",
+					            "Mars",
+					            "April",
+					            "Maj",
+					            "Juni",
+					            "Juli",
+					            "Augusti",
+					            "September",
+					            "Oktober",
+					            "November",
+					            "December"
+					        ],
+					        "firstDay": 1
+					    },
+					    showWeekNumbers: true,
+					    startDate: '{{dates|first|date("Y-m-d")}}',
+					    endDate: '{{dates|last|date("Y-m-d")}}',
+					    minDate: '{{project.min_date}}',
+					    maxDate: '{{project.max_date}}',
+					    applyClass: "btn btn-primary p-x",
+    					cancelClass: "btn btn-primary-outline p-x"
+   					});
+
+   					$('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
+   						$('#date_from').val(picker.startDate.format('YYYY-MM-DD'));
+  						$('#date_to').val(picker.endDate.format('YYYY-MM-DD'));
+   						$('#daterangepicker').submit();
+					});
+
+				</script>			
+
+			</div>
+
+			<div class="col-xs-12 col-sm-8 col-md-9 text-right">
+
+				{% if current_user.admin %}
+
+					<a class="btn btn-primary-outline p-x" type="button" href="/project/edit/?id={{project.id}}">Redigera</a>
+
+				{% endif %}
+
+			</div>
+
+		{% endif %}
+
+	</div>
+
+	<div class="row m-b-lg">
+
+		{% if ga_results %}
+
+			<div class="col-xs-12 m-b-md">
+
+				<div class="hr-divider">
+
+					<ul class="graph-tabs nav nav-pills hr-divider-content hr-divider-nav" role="tablist">
+
+						<li class="active" role="presentation">
+							<a href="#users" aria-controls="users" role="tab" data-toggle="tab">Besök{% if ga_results|length > 1 %}/bolag{% endif %}</a>
+						</li>
+						<li role="presentation">
+							<a href="#leads" aria-controls="leads" role="tab" data-toggle="tab">Leads{% if ga_results|length > 1 %}/bolag{% endif %}</a>
+						</li>
+						{% if ga_results|length > 1 %}
+							<li role="presentation">
+								<a href="#users-total" aria-controls="users" role="tab" data-toggle="tab">Besök/totalt</a>
+							</li>
+							<li role="presentation">
+								<a href="#leads-total" aria-controls="leads" role="tab" data-toggle="tab">Leads/totalt</a>
+							</li>
+						{% endif %}
+
+					</ul>
+
+				</div>
+
+			</div>
+
+			<div class="tab-content">
+
+				<div role="tabpanel" class="col-xs-12 tab-pane fade in active" id="users">
+
+					<canvas id="users-chart"></canvas>
+
+					<script type="text/javascript">
+
+						var users_chart = document.getElementById("users-chart");
+						var users_data = {
+						    labels: [
+						    	{% for date in dates %}
+									'{{date|date("Y-m-d")}}',
+								{% endfor %}
+						    ],
+						    datasets: [
+						        {% for ga_result in ga_results %}
+						        	{
+							            label: "{{ga_result.name}}",
+							            fill: false,
+							            lineTension: 0.1,
+							            backgroundColor: "rgba({{ga_result.colour}},0.4)",
+							            borderColor: "rgba({{ga_result.colour}},1)",
+							            borderCapStyle: 'butt',
+							            borderDash: [],
+							            borderDashOffset: 0.0,
+							            borderJoinStyle: 'miter',
+							            pointBorderColor: "rgba({{ga_result.colour}},1)",
+							            pointBackgroundColor: "#fff",
+							            pointBorderWidth: 1,
+							            pointHoverRadius: 5,
+							            pointHoverBackgroundColor: "rgba({{ga_result.colour}},1)",
+							            pointHoverBorderColor: "rgba(220,220,220,1)",
+							            pointHoverBorderWidth: 2,
+							            pointRadius: 1,
+							            pointHitRadius: 10,
+							            data: [
+							            	{% for users in ga_result.users %}
+												{{users}},
+											{% endfor %}
+							            ],
+							            spanGaps: false,
+						        	},
+						        {% endfor %}
+						    ]
+						};
+						var users_options = [];
+						var myLineChart = new Chart(users_chart, {
+						    type: 'line',
+						    data: users_data,
+						    options: users_options
+						});
+
+					</script>
+
+				</div>
+
+				<div role="tabpanel" class="col-xs-12 tab-pane fade" id="leads">
+
+					<canvas id="leads-chart"></canvas>
+
+					<script type="text/javascript">
+
+						var leads_chart = document.getElementById("leads-chart");
+						var leads_data = {
+						    labels: [
+						    	{% for date in dates %}
+									'{{date|date("Y-m-d")}}',
+								{% endfor %}
+						    ],
+						    datasets: [
+						        {% for ga_result in ga_results %}
+						        	{
+							            label: "{{ga_result.name}}",
+							            fill: false,
+							            lineTension: 0.1,
+							            backgroundColor: "rgba({{ga_result.colour}},0.4)",
+							            borderColor: "rgba({{ga_result.colour}},1)",
+							            borderCapStyle: 'butt',
+							            borderDash: [],
+							            borderDashOffset: 0.0,
+							            borderJoinStyle: 'miter',
+							            pointBorderColor: "rgba({{ga_result.colour}},1)",
+							            pointBackgroundColor: "#fff",
+							            pointBorderWidth: 1,
+							            pointHoverRadius: 5,
+							            pointHoverBackgroundColor: "rgba({{ga_result.colour}},1)",
+							            pointHoverBorderColor: "rgba(220,220,220,1)",
+							            pointHoverBorderWidth: 2,
+							            pointRadius: 1,
+							            pointHitRadius: 10,
+							            data: [
+							            	{% for leads in ga_result.leads %}
+												{{leads}},
+											{% endfor %}
+							            ],
+							            spanGaps: false,
+						        	},
+						        {% endfor %}
+						    ]
+						};
+						var leads_options = [];
+						var myLineChart = new Chart(leads_chart, {
+						    type: 'line',
+						    data: leads_data,
+						    options: leads_options
+						});
+
+					</script>
+
+				</div>
+
+				{% if ga_results|length > 1 %}
+
+					<div role="tabpanel" class="col-xs-12 tab-pane fade" id="users-total">
+
+						<canvas id="users-total-chart"></canvas>
+
+						<script type="text/javascript">
+
+							var users_total_chart = document.getElementById("users-total-chart");
+							var users_total_data = {
+							    labels: [
+							    	{% for date in dates %}
+										'{{date|date("Y-m-d")}}',
+									{% endfor %}
+							    ],
+							    datasets: [
+							        	{
+								            label: "Totalt på {{ga_results|length}} bolag",
+								            fill: false,
+								            lineTension: 0.1,
+								            backgroundColor: "rgba(255,182,0,0.4)",
+								            borderColor: "rgba(255,182,0,1)",
+								            borderCapStyle: 'butt',
+								            borderDash: [],
+								            borderDashOffset: 0.0,
+								            borderJoinStyle: 'miter',
+								            pointBorderColor: "rgba(255,182,0,1)",
+								            pointBackgroundColor: "#fff",
+								            pointBorderWidth: 1,
+								            pointHoverRadius: 5,
+								            pointHoverBackgroundColor: "rgba(255,182,0,1)",
+								            pointHoverBorderColor: "rgba(220,220,220,1)",
+								            pointHoverBorderWidth: 2,
+								            pointRadius: 1,
+								            pointHitRadius: 10,
+								            data: [
+								            	{% for users in ga_summary.users %}
+													{{users}},
+												{% endfor %}
+								            ],
+								            spanGaps: false,
+							        	},
+							    ]
+							};
+							var users_total_options = [];
+							var myLineChart = new Chart(users_total_chart, {
+							    type: 'line',
+							    data: users_total_data,
+							    options: users_total_options
+							});
+
+						</script>
+
+					</div>
+
+					<div role="tabpanel" class="col-xs-12 tab-pane fade" id="leads-total">
+
+						<canvas id="leads-total-chart"></canvas>
+
+						<script type="text/javascript">
+
+							var leads_total_chart = document.getElementById("leads-total-chart");
+							var leads_total_data = {
+							    labels: [
+							    	{% for date in dates %}
+										'{{date|date("Y-m-d")}}',
+									{% endfor %}
+							    ],
+							    datasets: [
+							        	{
+								            label: "Totalt på {{ga_results|length}} bolag",
+								            fill: false,
+								            lineTension: 0.1,
+								            backgroundColor: "rgba(255,182,0,0.4)",
+								            borderColor: "rgba(255,182,0,1)",
+								            borderCapStyle: 'butt',
+								            borderDash: [],
+								            borderDashOffset: 0.0,
+								            borderJoinStyle: 'miter',
+								            pointBorderColor: "rgba(255,182,0,1)",
+								            pointBackgroundColor: "#fff",
+								            pointBorderWidth: 1,
+								            pointHoverRadius: 5,
+								            pointHoverBackgroundColor: "rgba(255,182,0,1)",
+								            pointHoverBorderColor: "rgba(220,220,220,1)",
+								            pointHoverBorderWidth: 2,
+								            pointRadius: 1,
+								            pointHitRadius: 10,
+								            data: [
+								            	{% for leads in ga_summary.leads %}
+													{{leads}},
+												{% endfor %}
+								            ],
+								            spanGaps: false,
+							        	},
+							    ]
+							};
+							var leads_total_options = [];
+							var myLineChart = new Chart(leads_total_chart, {
+							    type: 'line',
+							    data: leads_total_data,
+							    options: leads_total_options
+							});
+
+						</script>
+
+					</div>
+
+					<div role="tabpanel" class="col-xs-12 tab-pane fade" id="leads-total">
+
+						<canvas id="leads-total-chart"></canvas>
+
+						<script type="text/javascript">
+
+							var leads_total_chart = document.getElementById("leads-total-chart");
+							var leads_total_data = {
+							    labels: [
+							    	{% for date in dates %}
+										'{{date|date("Y-m-d")}}',
+									{% endfor %}
+							    ],
+							    datasets: [
+							        	{
+								            label: "Totalt på {{ga_results|length}} bolag",
+								            fill: false,
+								            lineTension: 0.1,
+								            backgroundColor: "rgba(255,182,0,0.4)",
+								            borderColor: "rgba(255,182,0,1)",
+								            borderCapStyle: 'butt',
+								            borderDash: [],
+								            borderDashOffset: 0.0,
+								            borderJoinStyle: 'miter',
+								            pointBorderColor: "rgba(255,182,0,1)",
+								            pointBackgroundColor: "#fff",
+								            pointBorderWidth: 1,
+								            pointHoverRadius: 5,
+								            pointHoverBackgroundColor: "rgba(255,182,0,1)",
+								            pointHoverBorderColor: "rgba(220,220,220,1)",
+								            pointHoverBorderWidth: 2,
+								            pointRadius: 1,
+								            pointHitRadius: 10,
+								            data: [
+								            	{% for leads in ga_summary.leads %}
+													{{leads}},
+												{% endfor %}
+								            ],
+								            spanGaps: false,
+							        	},
+							    ]
+							};
+							var leads_total_options = [];
+							var myLineChart = new Chart(leads_total_chart, {
+							    type: 'line',
+							    data: leads_total_data,
+							    options: leads_total_options
+							});
+
+						</script>
+
+					</div>
+
+				{% endif %}
+
+			</div>
+
+		{% endif %}
+
+	</div>
+
+	<div class="row m-b-lg">
+
+		{% if ga_results %}
+
+			<div class="col-xs-12 m-b-md">
+
+				<div class="hr-divider">
+
+					<ul class="graph-tabs nav nav-pills hr-divider-content hr-divider-nav" role="tablist">
+
+						<li class="active" role="presentation">
+							<a href="#users-week" aria-controls="users-week" role="tab" data-toggle="tab">Besök/rapportperiod</a>
+						</li>
+						<li role="presentation">
+							<a href="#users-week-total" aria-controls="users-week-total" role="tab" data-toggle="tab">Totalt antal besök/rapportperiod</a>
+						</li>
+						<li role="presentation">
+							<a href="#leads-week" aria-controls="leads-week" role="tab" data-toggle="tab">Leads/rapportperiod</a>
+						</li>
+
+					</ul>
+
+				</div>
+
+			</div>
+
+			<div class="tab-content">
+
+				<div role="tabpanel" class="col-xs-12 tab-pane fade in active" id="users-week">
+
+					<canvas id="users-chart-weeks"></canvas>
+
+					<script type="text/javascript">
+
+						var users_week_chart = document.getElementById("users-chart-weeks");
+						var users_week_data = {
+						    labels: [
+						    	{% for week in weeks %}
+									'{{week}}',
+								{% endfor %}
+						    ],
+						    datasets: [
+						        {% for ga_result in ga_total_results %}
+						        	{
+							            label: "{{ga_result.name}}",
+							            fill: false,
+							            lineTension: 0.1,
+							            backgroundColor: "rgba({{ga_result.colour}},0.4)",
+							            borderColor: "rgba({{ga_result.colour}},1)",
+							            borderCapStyle: 'butt',
+							            borderDash: [],
+							            borderDashOffset: 0.0,
+							            borderJoinStyle: 'miter',
+							            pointBorderColor: "rgba({{ga_result.colour}},1)",
+							            pointBackgroundColor: "#fff",
+							            pointBorderWidth: 1,
+							            pointHoverRadius: 5,
+							            pointHoverBackgroundColor: "rgba({{ga_result.colour}},1)",
+							            pointHoverBorderColor: "rgba(220,220,220,1)",
+							            pointHoverBorderWidth: 2,
+							            pointRadius: 1,
+							            pointHitRadius: 10,
+							            data: [
+							            	{% for users_per_week in ga_result.users_per_week %}
+												{{users_per_week}},
+											{% endfor %}
+							            ],
+							            spanGaps: false,
+						        	},
+						        {% endfor %}
+						    ]
+						};
+						var users_week_options = [];
+						var myLineChart = new Chart(users_week_chart, {
+						    type: 'line',
+						    data: users_week_data,
+						    options: users_week_options
+						});
+
+					</script>
+
+				</div>
+
+				<div role="tabpanel" class="col-xs-12 tab-pane fade in active" id="users-week-total">
+
+					<canvas id="users-week-total-chart"></canvas>
+
+					<script type="text/javascript">
+
+						var users_week_total_chart = document.getElementById("users-week-total-chart");
+						var users_week_total_data = {
+						    labels: [
+						    	{% for week in weeks %}
+									'{{week}}',
+								{% endfor %}
+						    ],
+						    datasets: [
+						        	{
+							            label: "Totalt",
+							            fill: false,
+							            lineTension: 0.1,
+							            backgroundColor: "rgba(255,182,0,0.4)",
+							            borderColor: "rgba(255,182,0,1)",
+							            borderCapStyle: 'butt',
+							            borderDash: [],
+							            borderDashOffset: 0.0,
+							            borderJoinStyle: 'miter',
+							            pointBorderColor: "rgba(255,182,0,1)",
+							            pointBackgroundColor: "#fff",
+							            pointBorderWidth: 1,
+							            pointHoverRadius: 5,
+							            pointHoverBackgroundColor: "rgba(255,182,0,1)",
+							            pointHoverBorderColor: "rgba(220,220,220,1)",
+							            pointHoverBorderWidth: 2,
+							            pointRadius: 1,
+							            pointHitRadius: 10,
+							            data: [
+							            	{% for users in ga_weekly_summary.users %}
+												{{users}},
+											{% endfor %}
+							            ],
+							            spanGaps: false,
+						        	},
+						    ]
+						};
+						var users_week_total_options = [];
+						var myLineChart = new Chart(users_week_total_chart, {
+						    type: 'line',
+						    data: users_week_total_data,
+						    options: users_week_total_options
+						});
+
+					</script>
+
+				</div>
+
+				<div role="tabpanel" class="col-xs-12 tab-pane fade" id="leads-week">
+
+					<canvas id="leads-week-chart"></canvas>
+
+					<script type="text/javascript">
+
+						var leads_week_chart = document.getElementById("leads-week-chart");
+						var leads_week_data = {
+						    labels: [
+						    	{% for week in weeks %}
+									'{{week}}',
+								{% endfor %}
+						    ],
+						    datasets: [
+						        {% for ga_result in ga_total_results %}
+						        	{
+							            label: "{{ga_result.name}}",
+							            fill: false,
+							            lineTension: 0.1,
+							            backgroundColor: "rgba({{ga_result.colour}},0.4)",
+							            borderColor: "rgba({{ga_result.colour}},1)",
+							            borderCapStyle: 'butt',
+							            borderDash: [],
+							            borderDashOffset: 0.0,
+							            borderJoinStyle: 'miter',
+							            pointBorderColor: "rgba({{ga_result.colour}},1)",
+							            pointBackgroundColor: "#fff",
+							            pointBorderWidth: 1,
+							            pointHoverRadius: 5,
+							            pointHoverBackgroundColor: "rgba({{ga_result.colour}},1)",
+							            pointHoverBorderColor: "rgba(220,220,220,1)",
+							            pointHoverBorderWidth: 2,
+							            pointRadius: 1,
+							            pointHitRadius: 10,
+							            data: [
+							            	{% for leads_per_week in ga_result.leads_per_week %}
+												{{leads_per_week}},
+											{% endfor %}
+							            ],
+							            spanGaps: false,
+						        	},
+						        {% endfor %}
+						    ]
+						};
+						var leads_week_options = [];
+						var myLineChart = new Chart(leads_week_chart, {
+						    type: 'line',
+						    data: leads_week_data,
+						    options: leads_week_options
+						});
+
+					</script>
+
+				</div>
+
+			</div>
+
+		{% endif %}
+
+	</div>
+
+</div>
