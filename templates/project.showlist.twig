@@ -53,7 +53,7 @@
 									
 									<td><a href="/project/show/?id={{project.id}}">{{project.name}}</a></td>
 									{% if current_user.admin %}
-										<td>{{project.user.company}}</td>
+										<td>{{project.client.name}}</td>
 										<td>
 											<a href="/project/delete/?id={{project.id}}" data-type="confirm" data-message="Radera projekt?"><i class="fa fa-trash-o fa-fw" aria-hidden="true"></i></a>
 										</td>

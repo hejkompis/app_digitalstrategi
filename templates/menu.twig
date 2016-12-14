@@ -18,34 +18,28 @@
     
                 {% if current_user.admin %}
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Användare <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="/user/showlist">Lista alla</a></li>
-                            <li><a href="/user/add">Lägg till</a></li>
-                            <!--<li><a href="#">Something else here</a></li>
-                            <li role="separator" class="divider"></li>-->
-                        </ul>
-                    </li>
-
-                    <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Kunder <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="/client/showlist">Lista alla</a></li>
                             <li><a href="/client/add">Lägg till</a></li>
-                            <!--<li><a href="#">Something else here</a></li>
-                            <li role="separator" class="divider"></li>-->
+                        </ul>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Användare <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/user/showlist">Lista alla</a></li>
+                            <li><a href="/user/add">Lägg till</a></li>
                         </ul>
                     </li>
         
-                    {# <li class="dropdown">
+                    <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Projekt <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="/project/showlist">Lista alla</a></li>
                             <li><a href="/project/add">Lägg till</a></li>
-                            <!--<li><a href="#">Something else here</a></li>
-                            <li role="separator" class="divider"></li>-->
                         </ul>
-                    </li> #}
+                    </li>
 
                 {% else %} 
                     <li><a href="/project/showlist">Projekt</a></li>

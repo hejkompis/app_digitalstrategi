@@ -4,8 +4,6 @@
 
 		private static $instance = null, $prev_results = [], $mysqli;
 		public static $con, $user;
-		//private $db = ['url' => 'localhost', 'user' => 'root', 'password' => 'root', 'database' => 'projektsajten'];
-		// private $db = ['url' => 'mysql525.loopia.se', 'user' => 'dss@d160488', 'password' => 'OL4c3P3nodej', 'database' => 'digitalstrategi_se_db_7'];
 
 		private function __construct() {
 
@@ -16,7 +14,6 @@
 				$db = ['url' => 'mysql525.loopia.se', 'user' => 'dss@d160488', 'password' => 'OL4c3P3nodej', 'database' => 'digitalstrategi_se_db_7'];
 			}
 
-			//self::$mysqli = new mysqli($this->db['url'], $this->db['user'], $this->db['password'], $this->db['database']);
 			self::$mysqli = new mysqli($db['url'], $db['user'], $db['password'], $db['database']);
 			self::$mysqli->query("SET NAMES 'utf8'");
 			self::$con = self::con();

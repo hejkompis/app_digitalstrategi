@@ -11,14 +11,9 @@
 			$sql = "SELECT * FROM clients WHERE id = ".$clean_client_id;
 			$data = DB::query($sql, true);
 
-			$user = new User($data['user_id']);
-			$projects = Project::get_all($clean_client_id);
-
 			$this->id 		= $data['id'];
 			$this->name 	= $data['name'];
-			$this->user 	= $user;
 			$this->online 	= $data['online'];
-			$this->projects = $projects;
 
 		}
 
@@ -101,12 +96,7 @@
 
 			$sql_addon = '';
 
-			if($user_id) {
-				$clean_user_id = DB::clean($user_id);
-				$sql_addon = " WHERE user_id = ".$clean_user_id." AND online = 1";
-			}
-
-			$sql = "SELECT id FROM clients ".$sql_addon." ORDER BY id DESC";
+			$sql = "SELECT id FROM clients ORDER BY id DESC";
 			$data = DB::query($sql);
 
 			$output = [];
@@ -122,9 +112,8 @@
 
 			$clean_input = DB::clean($input);
 
-			$sql = "INSERT INTO clients (name, user_id) VALUES (
-				'".$clean_input['name']."', 
-				".$clean_input['user_id']."
+			$sql = "INSERT INTO clients (name) VALUES (
+				'".$clean_input['name']."'
 			)";
 			$id = DB::query($sql);
 

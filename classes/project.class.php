@@ -2,7 +2,7 @@
 
 	class Project {
 
-		private $id, $name, $client_id, $accounts = [], $start_date, $end_date, $online;
+		private $id, $name, $client, $accounts = [], $start_date, $end_date, $online;
 
 		public function __construct($project_id) {
 
@@ -18,7 +18,7 @@
 			$this->min_date		= date('Y-m-d', $data['start_date']);
 			$this->max_date 	= $data['end_date'] > strtotime(date('Y-m-d')) ? date('Y-m-d') : date('Y-m-d', $data['end_date']);
 			$this->online 		= $data['online'];
-			$this->client_id 	= $data['client_id'];
+			$this->client 		= new Client($data['client_id']);
 			$this->accounts		= Account::get_all($data['id']);
 
 		}
@@ -83,10 +83,13 @@
 				}
 			}
 
+			$clients = Client::get_all();
+
 			$output = [
 				'title'			=> 'Nytt projekt',
 				'client'		=> $client,
-				'ga_accounts' 	=> $ga_accounts
+				'ga_accounts' 	=> $ga_accounts,
+				'clients' 		=> $clients
 			];
 
 			return $output;
@@ -112,13 +115,15 @@
 				}
 			}
 
-			//echo '<pre>'; print_r($ga_accounts); echo '</pre>';
+			$clients = Client::get_all();
 
 			$output = [
-				'title'		=> 'Redigera projekt',
-				'project'	=> new Project($clean_input['id']),
-				'ga_accounts' 	=> $ga_accounts,
-				'active_ga_accounts' => Account::get_all_account_ids($clean_input['id'])
+				'title'					=> 'Redigera projekt',
+				'project'				=> new Project($clean_input['id']),
+				'ga_accounts' 			=> $ga_accounts,
+				'active_ga_accounts' 	=> Account::get_all_account_ids($clean_input['id']),
+				'clients'				=> $clients
+
 			];
 
 			return $output;
@@ -266,8 +271,6 @@
 				$weeks[] = $key;
 			}
 
-			print_r($ga_weekly_summary);
-
 			$output = [
 				'title'				=> $client->name.', '.$project->name,
 				'project'			=> $project,
@@ -366,6 +369,7 @@
 			$sql = "
 			UPDATE projects SET 
 			name = '".$clean_input['name']."',
+			client_id = '".$clean_input['client_id']."',
 			start_date = ".$start_date.",
 			end_date = ".$end_date."
 			WHERE id = ".$clean_input['id'];

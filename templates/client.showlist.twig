@@ -36,7 +36,6 @@
 
 								<th>Namn</th>
 								{% if current_user.admin %}
-									<th>Användare</th>
 									<th>Radera</th>
 									<th>Redigera</th>
 									<th>Aktiv</th>
@@ -53,7 +52,6 @@
 									
 									<td><a href="/client/show/?id={{client.id}}">{{client.name}}</a></td>
 									{% if current_user.admin %}
-										<td>{{client.user.company}}</td>
 										<td>
 											<a href="/client/delete/?id={{client.id}}" data-type="confirm" data-message="Radera projekt?"><i class="fa fa-trash-o fa-fw" aria-hidden="true"></i></a>
 										</td>
