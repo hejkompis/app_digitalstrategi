@@ -169,6 +169,12 @@ $(document).ready(function() {
 		e.preventDefault();
 	});
 
+	$(function() {
+		$('#color-picker').colorpicker({
+			format: 'rgb'
+		});
+	});
+
 });
 
 function add_contact(data) {

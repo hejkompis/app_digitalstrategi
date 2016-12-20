@@ -2,7 +2,7 @@
 
 	class Project {
 
-		private $id, $name, $client, $accounts = [], $start_date, $end_date, $online;
+		private $id, $name, $client, $accounts = [], $start_date, $end_date, $conversion_rate, $online;
 
 		public function __construct($project_id) {
 
@@ -11,16 +11,13 @@
 			$sql = "SELECT * FROM projects WHERE id = ".$clean_project_id;
 			$data = DB::query($sql, true);
 
-			$this->id 			= $data['id'];
-			$this->name 		= $data['name'];
-			$this->start_date 	= $data['start_date'];
-			$this->end_date 	= $data['end_date'];
-			$this->min_date		= date('Y-m-d', $data['start_date']);
-			$this->max_date 	= $data['end_date'] > strtotime(date('Y-m-d')) ? date('Y-m-d') : date('Y-m-d', $data['end_date']);
-			$this->online 		= $data['online'];
-			$this->client 		= new Client($data['client_id']);
-			$this->accounts		= Account::get_all($data['id']);
-
+			$this->id 				= $data['id'];
+			$this->name 			= $data['name'];
+			$this->start_date 		= $data['start_date'];
+			$this->end_date 		= $data['end_date'];
+			$this->conversion_rate 	= $data['conversion_rate'];
+			$this->online 			= $data['online'];
+			$this->client 			= new Client($data['client_id']);
 		}
 
 		function __get($var) {
@@ -34,6 +31,48 @@
 				return TRUE; 
 			}
 			return FALSE; 
+		}
+
+		// Lista alla filmer som hör till ett projekt (finns user_id i input så visas bara projekt för den specifika användaren)
+		public static function show($input = false) {
+		
+			$clean_input	= DB::clean($input);
+			$project 		= new Project($clean_input['id']);
+
+			$from = isset($clean_input['from']) ? strtotime($clean_input['from']) : $project->start_date;
+
+			$to = $project->end_date;
+			if($to > time() || $to === NULL) {
+				$to = strtotime('yesterday');
+			}
+			if(isset($clean_input['to'])) {
+				$to = strtotime($clean_input['to']);
+			}
+
+			$dates = [];
+			for($i = $from; $i <= $to; $i+=(60*60*24)) {
+				$dates[] = $i;
+			}
+
+			$raw_accounts 	= self::get_project_accounts($project->id);
+			$accounts 		= Account::filter_account_data($raw_accounts, $from, $to);
+			$total			= Account::get_total($accounts);
+
+			// echo '<pre>';
+			// 	print_r($total);
+			// echo '</pre>';
+
+			$output = [
+				'title'		=> $project->client->name.', '.$project->name,
+				'project'	=> $project,
+				'accounts'	=> $accounts,
+				'total'		=> $total,
+				'from'		=> $from,
+				'to' 		=> $to,
+				'dates'		=> $dates
+			];
+
+			return $output;
 		}
 
 		public static function showlist($input = false) {
@@ -68,27 +107,14 @@
 
 			$client = isset($clean_input['id']) ? new Client($clean_input['id']) : false;
 
-			$ga_accounts = [];
-			$ga = new gapi(gapi_email, gapi_pass);
-
-			$ga->requestAccountData();
-
-			foreach($ga->getAccounts() as $key => $result) {
-
-				$ga_accounts[$key]['name'] = $result;
-				$ga_accounts[$key]['id'] = $result->getId();
-
-				foreach($result->getProfiles() as $profile) {		
-					$ga_accounts[$key]['profiles'][$profile['id']] = $profile['name'];
-				}
-			}
+			
 
 			$clients = Client::get_all();
 
 			$output = [
 				'title'			=> 'Nytt projekt',
 				'client'		=> $client,
-				'ga_accounts' 	=> $ga_accounts,
+				'accounts' 		=> Account::get_all(),
 				'clients' 		=> $clients
 			];
 
@@ -99,188 +125,15 @@
 		public static function edit($input = false) {
 
 			$clean_input 	= DB::clean($input);
-
-			$ga_accounts = [];
-			$ga = new gapi(gapi_email, gapi_pass);
-
-			$ga->requestAccountData();
-
-			foreach($ga->getAccounts() as $key => $result) {
-
-				$ga_accounts[$key]['name'] = $result;
-				$ga_accounts[$key]['id'] = $result->getId();
-
-				foreach($result->getProfiles() as $profile) {		
-					$ga_accounts[$key]['profiles'][$profile['id']] = $profile['name'];
-				}
-			}
-
 			$clients = Client::get_all();
-
+			$project = new Project($clean_input['id']);
 			$output = [
 				'title'					=> 'Redigera projekt',
-				'project'				=> new Project($clean_input['id']),
-				'ga_accounts' 			=> $ga_accounts,
-				'active_ga_accounts' 	=> Account::get_all_account_ids($clean_input['id']),
+				'project'				=> $project,
+				'project_has_accounts' 	=> self::project_has_accounts($clean_input['id']),
+				'accounts' 				=> Account::get_all(),
 				'clients'				=> $clients
 
-			];
-
-			return $output;
-		}
-
-		// Lista alla filmer som hör till ett projekt (finns user_id i input så visas bara projekt för den specifika användaren)
-		public static function show($input = false) {
-		
-			$clean_input	= DB::clean($input);
-			$project 		= new Project($clean_input['id']);
-			$client 		= new Client($project->client_id);
-			$start_date		= isset($clean_input['from']) ? $clean_input['from'] : strtotime("-7 days");
-			$end_date		= isset($clean_input['to']) ? $clean_input['to'] : date('Y-m-d', strtotime("-1 days"));
-			$projects_ga_accounts 	= Account::get_all_account_ids($clean_input['id']);
-
-			$ga = new gapi(gapi_email, gapi_pass);
-			$ga->requestAccountData();
-
-			$ga_summary = [
-				'users' => [],
-				'leads' => [],
-				'users_total' => 0,
-				'leads_total' => 0
-			];
-
-			$ga_weekly_summary = [
-				'users' => [],
-				'leads' => []
-			];
-
-			$colours = [
-				'75,192,192',
-				'255,182,0',
-				'0,204,255',
-				'255,128,64',
-				'204,55,20',
-				'61,86,153',
-				'110,178,9',
-				'129,204,20',
-				'255,69,25'
-			];
-
-			$count = 0;
-
-			// get raw data regarding connected accounts from ga
-			$connected_views = Account::get_connected_views();
-
-			foreach($projects_ga_accounts as $ga_account) {
-
-				$dimensions = array('date');
-				$metrics = array('users', 'goalCompletionsAll');
-				$sort_metric = array('date'); 
-				$filter = null;
-				$start_index = 1;
-				$max_results = 10000;
-
-				$ga_span = $ga;
-				$ga_total = $ga;
-
-				$ga_span->requestReportData(
-					$ga_account, 
-					$dimensions, 
-					$metrics, 
-					$sort_metric, 
-					$filter, 
-					$start_date, 
-					$end_date, 
-					$start_index, 
-					$max_results
-				);
-
-				if(array_key_exists($ga_account,$connected_views)) {
-						
-					$ga_span_results[$ga_account]['name'] = $connected_views[$ga_account]['name'];
-					$ga_span_results[$ga_account]['url'] = $connected_views[$ga_account]['url'];
-
-					$ga_total_results[$ga_account]['name'] = $connected_views[$ga_account]['name'];
-					$ga_total_results[$ga_account]['url'] = $connected_views[$ga_account]['url']; 			
-				}
-
-				
-				$ga_span_results[$ga_account]['colour'] = $colours[$count];
-				$ga_total_results[$ga_account]['colour'] = $colours[$count];
-				$count++;
-
-				foreach($ga_span->getResults() as $res) {
-					$ga_span_results[$ga_account]['users'][strtotime($res->getDate())] = $res->getUsers();
-					$ga_span_results[$ga_account]['leads'][strtotime($res->getDate())] = $res->getGoalCompletionsAll();
-
-					$ga_summary['users'][strtotime($res->getDate())] = isset($ga_summary['users'][strtotime($res->getDate())]) ? $ga_summary['users'][strtotime($res->getDate())] + $res->getUsers() : $res->getUsers();
-					$ga_summary['leads'][strtotime($res->getDate())] = isset($ga_summary['leads'][strtotime($res->getDate())]) ? $ga_summary['leads'][strtotime($res->getDate())] + $res->getGoalCompletionsAll() : $res->getGoalCompletionsAll();
-
-				}
-
-				$ga_total->requestReportData(
-					$ga_account, 
-					$dimensions, 
-					$metrics, 
-					$sort_metric, 
-					$filter, 
-					date('Y-m-d', $project->start_date), 
-					$end_date, 
-					$start_index, 
-					$max_results
-				);
-
-				foreach($ga_total->getResults() as $res) {
-
-					$dayNo = date('N', strtotime($res->getDate()));
-					$weekNo = date('W', strtotime($res->getDate()));
-
-					$day_where_weekly_count_starts = 5;
-					$leads_per_users = 0.05;
-
-					// om det är fredag, lördag eller söndag
-					if($dayNo >= $day_where_weekly_count_starts) {
-
-						$ga_total_results[$ga_account]['users_per_week'][$weekNo+1] = isset($ga_total_results[$ga_account]['users_per_week'][$weekNo+1]) ? $ga_total_results[$ga_account]['users_per_week'][$weekNo+1] + $res->getUsers() : $res->getUsers();
-
-						$ga_weekly_summary['users'][$weekNo+1] = isset($ga_weekly_summary['users'][$weekNo+1]) ? $ga_weekly_summary['users'][$weekNo+1] + $res->getUsers() : $res->getUsers();
-
-						$ga_total_results[$ga_account]['leads_per_week'][$weekNo+1] = isset($ga_total_results[$ga_account]['leads_per_week'][$weekNo+1]) ? $ga_total_results[$ga_account]['leads_per_week'][$weekNo+1] + $res->getGoalCompletionsAll() : $res->getGoalCompletionsAll();
-
-						$ga_weekly_summary['leads'][$weekNo+1] = isset($ga_weekly_summary['leads'][$weekNo+1]) ? $ga_weekly_summary['leads'][$weekNo+1] + $res->getGoalCompletionsAll() : $res->getGoalCompletionsAll();
-
-					}
-					else {
-
-						$ga_total_results[$ga_account]['users_per_week'][$weekNo] = isset($ga_total_results[$ga_account]['users_per_week'][$weekNo]) ? $ga_total_results[$ga_account]['users_per_week'][$weekNo] + $res->getUsers() : $res->getUsers();
-
-						$ga_total_results[$ga_account]['leads_per_week'][$weekNo] = isset($ga_total_results[$ga_account]['leads_per_week'][$weekNo]) ? $ga_total_results[$ga_account]['leads_per_week'][$weekNo] + $res->getGoalCompletionsAll() : $res->getGoalCompletionsAll();
-					}
-				}
-
-			}
-
-			$dates = [];
-			$weeks = [];
-
-			foreach(array_values($ga_span_results)[0]['users'] as $key => $value) {
-				$dates[] = $key;
-			}
-
-			foreach(array_values($ga_total_results)[0]['users_per_week'] as $key => $value) {
-				$weeks[] = $key;
-			}
-
-			$output = [
-				'title'				=> $client->name.', '.$project->name,
-				'project'			=> $project,
-				'client' 			=> $client,
-				'dates'	 			=> $dates,
-				'weeks' 			=> $weeks,
-				'ga_results' 		=> $ga_span_results,
-				'ga_total_results' 	=> $ga_total_results,
-				'ga_summary' 		=> $ga_summary,
-				'ga_weekly_summary' => $ga_weekly_summary
 			];
 
 			return $output;
@@ -332,20 +185,21 @@
 			$clean_input = DB::clean($input);
 
 			$start_date = $clean_input['start_date'] != '' ? strtotime($clean_input['start_date']) : strtotime(date('Y-m-d'));
-			$end_date = $clean_input['ned_date'] != '' ? strtotime($clean_input['end_date']) : strtotime(date('Y-m-d', strtotime("+30 days")));
+			$end_date = $clean_input['end_date'] != '' ? strtotime($clean_input['end_date']) : 'NULL';
 
-			$sql = "INSERT INTO projects (name, client_id) VALUES (
+			$sql = "INSERT INTO projects (name, client_id, start_date, end_date, conversion_rate) VALUES (
 				'".$clean_input['name']."', 
-				".$clean_input['client_id']."
+				".$clean_input['client_id'].",
+				".$start_date.",
+				".$end_date.",
+				".$clean_input['conversion_rate']."
 			)";
 			$id = DB::query($sql);
 
-			foreach($clean_input['ga_accounts'] as $ga_account) {
-				$sql = "INSERT INTO accounts (project_id, ga_account_id, start_date, end_date) VALUES (
+			foreach($clean_input['project_has_accounts'] as $account_id) {
+				$sql = "INSERT INTO project_has_accounts (project_id, account_id) VALUES (
 					".$id.", 
-					".$ga_account.",
-					".$start_date.",
-					".$end_date."
+					".$account_id."
 				)";
 				DB::query($sql);
 			}
@@ -361,25 +215,28 @@
 		public static function update($input) {
 
 			$clean_input = DB::clean($input);
-			Account::delete($clean_input['id']);
 
 			$start_date = isset($clean_input['start_date']) ? strtotime($clean_input['start_date']) : strtotime(date('Y-m-d'));
-			$end_date = $clean_input['ned_date'] != '' ? strtotime($clean_input['end_date']) : strtotime(date('Y-m-d', strtotime("+30 days")));
+			$end_date = $clean_input['end_date'] != '' ? strtotime($clean_input['end_date']) : 'NULL';
 
 			$sql = "
 			UPDATE projects SET 
 			name = '".$clean_input['name']."',
 			client_id = '".$clean_input['client_id']."',
 			start_date = ".$start_date.",
-			end_date = ".$end_date."
+			end_date = ".$end_date.",
+			conversion_rate = ".$clean_input['conversion_rate']."
 			WHERE id = ".$clean_input['id'];
 
 			DB::query($sql);
 
-			foreach($clean_input['ga_accounts'] as $ga_account) {
-				$sql = "INSERT INTO accounts (project_id, ga_account_id) VALUES (
+			$sql = "DELETE FROM project_has_accounts WHERE project_id = ".$clean_input['id']."";
+			DB::query($sql);
+
+			foreach($clean_input['project_has_accounts'] as $account_id) {
+				$sql = "INSERT INTO project_has_accounts (project_id, account_id) VALUES (
 					".$clean_input['id'].", 
-					".$ga_account."
+					".$account_id."
 				)";
 				DB::query($sql);
 			}
@@ -401,6 +258,37 @@
 			DB::query($sql);
 
 			$output = ['redirect_url' => $input['http_referer']];
+
+			return $output;
+
+		}
+
+		public static function project_has_accounts($project_id) {
+
+			$clean_project_id = DB::clean($project_id);
+
+			$sql = "SELECT account_id FROM project_has_accounts WHERE project_id = ".$clean_project_id;
+			$data = DB::query($sql);
+
+			$output = [];
+			foreach($data as $value) {
+				$output[] = $value['account_id'];
+			}
+
+			return $output;
+
+		}
+
+		public static function get_project_accounts($project_id) {
+
+			$clean_project_id = DB::clean($project_id);
+
+			$accounts = self::project_has_accounts($clean_project_id);
+
+			$output = [];
+			foreach($accounts as $value) {
+				$output[] = new Account($value);
+			}
 
 			return $output;
 

@@ -4,7 +4,7 @@
 
 		<div class="col-xs-12">
 
-			<h2><a href="/client/show/?id={{project.client_id}}">{{client.name}}</a>, {{project.name}}</h2>
+			<h2><a href="/client/show/?id={{project.client.id}}">{{project.client.name}}</a>, {{project.name}}</h2>
 
 		</div>
 
@@ -67,10 +67,10 @@
 					        "firstDay": 1
 					    },
 					    showWeekNumbers: true,
-					    startDate: '{{dates|first|date("Y-m-d")}}',
-					    endDate: '{{dates|last|date("Y-m-d")}}',
-					    minDate: '{{project.min_date}}',
-					    maxDate: '{{project.max_date}}',
+					    startDate: '{{from|date("Y-m-d")}}',
+					    endDate: '{{to|date("Y-m-d")}}',
+					    minDate: '{{project.start_date|date("Y-m-d")}}',
+					    maxDate: '{{to|date("Y-m-d")}}',
 					    applyClass: "btn btn-primary p-x",
     					cancelClass: "btn btn-primary-outline p-x"
    					});
@@ -81,15 +81,17 @@
    						$('#daterangepicker').submit();
 					});
 
-				</script>			
+				</script>	
 
 			</div>
 
-			<div class="col-xs-12 col-sm-8 col-md-9 text-right">
+			<div class="col-xs-12 col-sm-8 col-md-9">
+
+				<a class="btn btn-primary-outline p-x" type="button" href="/project/show/?id={{project.id}}">Visa alla datum</a>
 
 				{% if current_user.admin %}
 
-					<a class="btn btn-primary-outline p-x" type="button" href="/project/edit/?id={{project.id}}">Redigera</a>
+					<a class="btn btn-primary-outline p-x pull-right" type="button" href="/project/edit/?id={{project.id}}">Redigera</a>
 
 				{% endif %}
 
@@ -101,7 +103,74 @@
 
 	<div class="row m-b-lg">
 
-		{% if ga_results %}
+		<div class="col-xs-12 m-b-md">
+
+			<div class="hr-divider">
+				<h3 class="hr-divider-content hr-divider-heading">
+					Sammanfattande statistik
+				</h3>
+			</div>
+
+		</div>
+
+		<div class="col-xs-12 col-sm-6 col-md-4">
+
+			<div class="statcard p-a-md">
+				<h3 class="statcard-number">
+					{{total.summary.date.users}}
+					{# <small class="delta-indicator delta-positive">5%</small> #}
+				</h3>
+				<span class="statcard-desc">Besökare under perioden</span>
+			</div>
+
+		</div>
+
+		<div class="col-xs-12 col-sm-6 col-md-4">
+
+			{% set actual_conversion_rate = ((total.summary.date.goalCompletionsAll / total.summary.date.users)*100)|round %}
+
+			{% if actual_conversion_rate >= project.conversion_rate %}
+
+				{% set success = true %}
+
+			{% else %}
+
+				{% set success = false %}
+
+			{% endif %}
+
+			<div class="statcard p-a-md">
+				<h3 class="statcard-number">
+					{{total.summary.date.goalCompletionsAll}}
+					{% if success %}
+						<small class="delta-indicator delta-positive">{{actual_conversion_rate}}%</small>
+					{% else %}
+						<small class="delta-indicator delta-negative">{{actual_conversion_rate}}%</small>
+					{% endif %}
+				</h3>
+				<span class="statcard-desc">Konverteringar ({{project.conversion_rate}}% är målsiffran)</span>
+			</div>
+
+		</div>
+
+		<div class="col-xs-12 col-sm-6 col-md-4">
+
+			{% set desired_conversion_rate = ((project.conversion_rate * total.summary.date.users)/100)|round %}
+
+			<div class="statcard p-a-md">
+				<h3 class="statcard-number">
+					{{desired_conversion_rate}}
+				</h3>
+				<span class="statcard-desc">Önskat antal konverteringar ({{project.conversion_rate}}%)</span>
+			</div>
+
+		</div>
+
+	</div>
+
+	<div class="row m-b-lg">
+
+		{% if accounts %}
 
 			<div class="col-xs-12 m-b-md">
 
@@ -110,12 +179,12 @@
 					<ul class="graph-tabs nav nav-pills hr-divider-content hr-divider-nav" role="tablist">
 
 						<li class="active" role="presentation">
-							<a href="#users" aria-controls="users" role="tab" data-toggle="tab">Besök{% if ga_results|length > 1 %}/bolag{% endif %}</a>
+							<a href="#users" aria-controls="users" role="tab" data-toggle="tab">Besök{% if accounts|length > 1 %}/bolag{% endif %}</a>
 						</li>
 						<li role="presentation">
-							<a href="#leads" aria-controls="leads" role="tab" data-toggle="tab">Leads{% if ga_results|length > 1 %}/bolag{% endif %}</a>
+							<a href="#leads" aria-controls="leads" role="tab" data-toggle="tab">Leads{% if accounts|length > 1 %}/bolag{% endif %}</a>
 						</li>
-						{% if ga_results|length > 1 %}
+						{% if accounts|length > 1 %}
 							<li role="presentation">
 								<a href="#users-total" aria-controls="users" role="tab" data-toggle="tab">Besök/totalt</a>
 							</li>
@@ -146,29 +215,29 @@
 								{% endfor %}
 						    ],
 						    datasets: [
-						        {% for ga_result in ga_results %}
+						        {% for account in accounts %}
 						        	{
-							            label: "{{ga_result.name}}",
+							            label: "{{account.name}}",
 							            fill: false,
 							            lineTension: 0.1,
-							            backgroundColor: "rgba({{ga_result.colour}},0.4)",
-							            borderColor: "rgba({{ga_result.colour}},1)",
+							            backgroundColor: "rgba({{account.colour}},0.4)",
+							            borderColor: "rgba({{account.colour}},1)",
 							            borderCapStyle: 'butt',
 							            borderDash: [],
 							            borderDashOffset: 0.0,
 							            borderJoinStyle: 'miter',
-							            pointBorderColor: "rgba({{ga_result.colour}},1)",
+							            pointBorderColor: "rgba({{account.colour}},1)",
 							            pointBackgroundColor: "#fff",
 							            pointBorderWidth: 1,
 							            pointHoverRadius: 5,
-							            pointHoverBackgroundColor: "rgba({{ga_result.colour}},1)",
+							            pointHoverBackgroundColor: "rgba({{account.colour}},1)",
 							            pointHoverBorderColor: "rgba(220,220,220,1)",
 							            pointHoverBorderWidth: 2,
 							            pointRadius: 1,
 							            pointHitRadius: 10,
 							            data: [
-							            	{% for users in ga_result.users %}
-												{{users}},
+							            	{% for day in account.data %}
+												{{day.date.users}},
 											{% endfor %}
 							            ],
 							            spanGaps: false,
@@ -201,29 +270,29 @@
 								{% endfor %}
 						    ],
 						    datasets: [
-						        {% for ga_result in ga_results %}
+						        {% for account in accounts %}
 						        	{
-							            label: "{{ga_result.name}}",
+							            label: "{{account.name}}",
 							            fill: false,
 							            lineTension: 0.1,
-							            backgroundColor: "rgba({{ga_result.colour}},0.4)",
-							            borderColor: "rgba({{ga_result.colour}},1)",
+							            backgroundColor: "rgba({{account.colour}},0.4)",
+							            borderColor: "rgba({{account.colour}},1)",
 							            borderCapStyle: 'butt',
 							            borderDash: [],
 							            borderDashOffset: 0.0,
 							            borderJoinStyle: 'miter',
-							            pointBorderColor: "rgba({{ga_result.colour}},1)",
+							            pointBorderColor: "rgba({{account.colour}},1)",
 							            pointBackgroundColor: "#fff",
 							            pointBorderWidth: 1,
 							            pointHoverRadius: 5,
-							            pointHoverBackgroundColor: "rgba({{ga_result.colour}},1)",
+							            pointHoverBackgroundColor: "rgba({{account.colour}},1)",
 							            pointHoverBorderColor: "rgba(220,220,220,1)",
 							            pointHoverBorderWidth: 2,
 							            pointRadius: 1,
 							            pointHitRadius: 10,
 							            data: [
-							            	{% for leads in ga_result.leads %}
-												{{leads}},
+							            	{% for day in account.data %}
+												{{day.date.goalCompletionsAll}},
 											{% endfor %}
 							            ],
 							            spanGaps: false,
@@ -242,7 +311,7 @@
 
 				</div>
 
-				{% if ga_results|length > 1 %}
+				{% if accounts|length > 1 %}
 
 					<div role="tabpanel" class="col-xs-12 tab-pane fade" id="users-total">
 
@@ -259,7 +328,7 @@
 							    ],
 							    datasets: [
 							        	{
-								            label: "Totalt på {{ga_results|length}} bolag",
+								            label: "Totalt på {{accounts|length}} bolag",
 								            fill: false,
 								            lineTension: 0.1,
 								            backgroundColor: "rgba(255,182,0,0.4)",
@@ -278,8 +347,8 @@
 								            pointRadius: 1,
 								            pointHitRadius: 10,
 								            data: [
-								            	{% for users in ga_summary.users %}
-													{{users}},
+								            	{% for day in total %}
+													{{day.date.users}},
 												{% endfor %}
 								            ],
 								            spanGaps: false,
@@ -312,7 +381,7 @@
 							    ],
 							    datasets: [
 							        	{
-								            label: "Totalt på {{ga_results|length}} bolag",
+								            label: "Totalt på {{accounts|length}} bolag",
 								            fill: false,
 								            lineTension: 0.1,
 								            backgroundColor: "rgba(255,182,0,0.4)",
@@ -331,61 +400,8 @@
 								            pointRadius: 1,
 								            pointHitRadius: 10,
 								            data: [
-								            	{% for leads in ga_summary.leads %}
-													{{leads}},
-												{% endfor %}
-								            ],
-								            spanGaps: false,
-							        	},
-							    ]
-							};
-							var leads_total_options = [];
-							var myLineChart = new Chart(leads_total_chart, {
-							    type: 'line',
-							    data: leads_total_data,
-							    options: leads_total_options
-							});
-
-						</script>
-
-					</div>
-
-					<div role="tabpanel" class="col-xs-12 tab-pane fade" id="leads-total">
-
-						<canvas id="leads-total-chart"></canvas>
-
-						<script type="text/javascript">
-
-							var leads_total_chart = document.getElementById("leads-total-chart");
-							var leads_total_data = {
-							    labels: [
-							    	{% for date in dates %}
-										'{{date|date("Y-m-d")}}',
-									{% endfor %}
-							    ],
-							    datasets: [
-							        	{
-								            label: "Totalt på {{ga_results|length}} bolag",
-								            fill: false,
-								            lineTension: 0.1,
-								            backgroundColor: "rgba(255,182,0,0.4)",
-								            borderColor: "rgba(255,182,0,1)",
-								            borderCapStyle: 'butt',
-								            borderDash: [],
-								            borderDashOffset: 0.0,
-								            borderJoinStyle: 'miter',
-								            pointBorderColor: "rgba(255,182,0,1)",
-								            pointBackgroundColor: "#fff",
-								            pointBorderWidth: 1,
-								            pointHoverRadius: 5,
-								            pointHoverBackgroundColor: "rgba(255,182,0,1)",
-								            pointHoverBorderColor: "rgba(220,220,220,1)",
-								            pointHoverBorderWidth: 2,
-								            pointRadius: 1,
-								            pointHitRadius: 10,
-								            data: [
-								            	{% for leads in ga_summary.leads %}
-													{{leads}},
+								            	{% for day in total %}
+													{{day.date.goalCompletionsAll}},
 												{% endfor %}
 								            ],
 								            spanGaps: false,

@@ -1,0 +1,129 @@
+<div class="container">
+
+	<div class="row m-b-md">
+
+		<div class="col-xs-12 col-sm-6">
+
+			<h2>Konton</h2>
+
+		</div>
+
+		{% if current_user.admin %}
+
+		<div class="col-xs-12 col-sm-6 text-right">
+
+			<a class="btn btn-primary-outline p-x" type="button" href="/account/add/">Lägg till</a>
+		
+		</div>
+
+		{% endif %}
+
+	</div>
+
+	<div class="row">
+
+		<div class="col-xs-12">			
+
+			<div class="table-responsive">
+				
+				<table class="table">
+
+					{% if accounts %}
+
+						<thead>
+
+							<tr>
+
+								<th>Namn</th>
+								<th>View ID</th>
+								<th>Färg</th>
+								{% if current_user.admin %}	
+									<th>Radera</th>
+									<th>Redigera</th>
+									<th>Aktiv</th>
+								{% endif %}
+
+							</tr>
+
+						</thead>
+						<tbody>
+
+							{% for account in accounts %}
+
+								<tr>
+									
+									<td>{{account.name}}</td>
+									<td>{{account.ga_account_id}}</td>
+									<td>
+
+										{% if account.colour %}
+
+											<button type="button" class="btn btn-xs btn-pill" style="background-color: {{account.colour}}; color: {{account.colour}};">.</button>
+
+										{% endif %}
+
+									</td>
+
+									{% if current_user.admin %}
+										<td>
+											<a href="/account/delete/?id={{account.id}}" data-type="confirm" data-message="Radera konto?"><i class="fa fa-trash-o fa-fw" aria-hidden="true"></i></a>
+										</td>
+										<td>
+											<a href="/account/edit/?id={{account.id}}"><i class="fa fa-pencil-square-o fa-fw" aria-hidden="true"></i></a>
+										</td>
+										<td>
+											<a href="#" data-type="json-changestatus" data-href="/account/json_changestatus/?id={{account.id}}">
+
+											{% if account.online %}
+
+												<i class="fa fa-check-square-o fa-fw"></i>
+
+											{% else %}
+
+												<i class="fa fa-square-o fa-fw"></i>
+
+											{% endif %}
+
+											</a>
+										</td>
+									{% endif %}
+
+								</tr>
+
+							{% endfor %}
+
+						</tbody>
+
+					{% else %}
+
+						<thead>
+
+							<tr>
+
+								<th></th>
+
+							</tr>
+
+						</thead>
+
+						<tbody>
+
+							<tr>
+									
+								<td>Inga konton</td>
+
+							</tr>
+
+						</tbody>
+
+					{% endif %}
+
+				</table>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</div>

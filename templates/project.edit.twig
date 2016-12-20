@@ -46,7 +46,7 @@
 						<div class="input-group input-daterange">
 							<input type="text" name="start_date" class="form-control" value="{{project.start_date|date("Y-m-d")}}">
 							<span class="input-group-addon">to</span>
-							<input type="text" name="end_date" class="form-control" value="{{project.end_date|date("Y-m-d")}}">
+							<input type="text" name="end_date" class="form-control" value="{% if project.end_date %}{{project.end_date|date("Y-m-d")}}{% endif %}">
 						</div>
 
 					</div>
@@ -69,25 +69,21 @@
 
 				<div class="form-group">
 
-					{% if ga_accounts %}
+					{% if accounts %}
 
-						{% for ga_account in ga_accounts %}
-
-							{% for profile_id, profile_name in ga_account.profiles %}
+						{% for account in accounts %}
 
 								<div class="checkbox">
 									<label>
-										<input type="checkbox" name="ga_accounts[]" value="{{profile_id}}" 
+										<input type="checkbox" name="project_has_accounts[]" value="{{account.id}}" 
 
-										{% if profile_id in active_ga_accounts %}
+										{% if account.id in project_has_accounts %}
 											checked="checked"
 										{% endif %}
 										>
-										{{ga_account.name}} / {{profile_name}} ({{ga_account.id}})
+										{{account.name}}
 									</label>
 								</div>
-
-							{% endfor %}							
 
 						{% endfor %}
 
@@ -97,6 +93,13 @@
 
 					{% endif %}
 
+
+				</div>
+
+				<div class="form-group">
+
+					<label for="conversion_rate">Önskad konverteringratio</label>
+					<input type="number" class="form-control" name="conversion_rate" id="conversion_rate" value="{{project.conversion_rate}}" min="0" max="100" placeholder="" />
 
 				</div>
 
