@@ -16,7 +16,7 @@
 			$this->ga_account_id 	= $data['ga_account_id'];
 			$this->ga_view_id 		= $data['ga_view_id'];
 			$this->name 			= $data['name'];
-			$this->colour 			= substr($data['colour'], 4, -1);
+			$this->colour 			= $data['colour'];
 			$this->online 			= $data['online'];
 			$this->data 			= self::get_stored_data($data['ga_view_id']);
 
@@ -85,26 +85,18 @@
 			// echo '</pre>';
 
 			// die;
+			// 
+			$colour = substr($clean_input['colour'], 4, -1);
 
 			$sql = "INSERT INTO accounts (ga_account_id, ga_view_id, name, colour) VALUES (
 				'".$clean_input['view_id']."', 
 				'".$clean_input['view_id']."',
 				'".$clean_input['name']."',
-				'".$clean_input['colour']."'
+				'".$colour."'
 			)";
 			$id = DB::query($sql);
 
 			self::store_data($clean_input['view_id']);
-
-			// foreach($dimensions as $dimension) {
-			// 	$data = $ga->requestReportData($clean_input['view_id'], array($dimension,'date'), $metrics);
-			// 	$sql = "INSERT INTO account_data (account_id, data, date) VALUES (
-			// 		'".$clean_input['view_id']."', 
-			// 		'".serialize($data)."',
-			// 		'".time()."'
-			// 	)";
-			// 	DB::query($sql);
-			// }
 
 			$output = [
 			'redirect_url' => $clean_input['redirect_url']
@@ -133,11 +125,12 @@
 		public static function update($input) {
 
 			$clean_input = DB::clean($input);
+			$colour = substr($clean_input['colour'], 4, -1);
 
 			$sql = "
 			UPDATE accounts SET 
 			name = '".$clean_input['name']."',
-			colour = '".$clean_input['colour']."',
+			colour = '".$colour."',
 			ga_account_id = '".$clean_input['view_id']."',
 			ga_view_id = '".$clean_input['view_id']."'
 			WHERE id = ".$clean_input['id'];
