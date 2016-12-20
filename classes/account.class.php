@@ -230,6 +230,9 @@
 
 				$ga = new gapi(gapi_email, gapi_pass);
 
+				$sql = "DELETE FROM account_data WHERE view_id = $clean_view_id AND stored_date < '$today'";
+				DB::query($sql);
+
 				// just date
 				$ga_object = $ga->requestReportData($clean_view_id, array('date'), $metrics);
 
@@ -330,12 +333,12 @@
 				$sql_addon = " WHERE project_id = ".$clean_project_id;
 			}
 
-			$sql = "SELECT ga_account_id FROM accounts ".$sql_addon." ORDER BY id DESC";
+			$sql = "SELECT ga_view_id FROM accounts ".$sql_addon." ORDER BY id DESC";
 			$data = DB::query($sql);
 
 			$output = [];
 			foreach($data as $value) {
-				$output[] = $value['ga_account_id'];
+				$output[] = $value['ga_view_id'];
 			}
 
 			return $output;
@@ -363,6 +366,15 @@
 
 			return $output;
 
+		}
+
+		public static function store_data_for_all_connected_views() {
+			$views = self::get_connected_views();
+			foreach($views as $view) {
+				$clean_view_id = DB::clean($view['view_id']);
+				self::store_data($clean_view_id);
+			}
+			die;
 		}
 
 		public static function filter_account_data($accounts, $from, $to) {
