@@ -2,7 +2,7 @@
 
 	class Account {
 
-		private $id, $ga_uid, $ga_account_id, $ga_view_id, $name, $colour, $online, $data;
+		private $id, $ga_uid, $ga_account_id, $ga_view_id, $name, $colour, $online, $data, $summary;
 
 		public function __construct($account_id) {
 
@@ -23,6 +23,8 @@
 			// echo '<pre>';
 			// 	print_r($this->data);
 			// echo '</pre>';
+
+			// die;
 
 		}
 
@@ -286,7 +288,7 @@
 			$sql = "SELECT dimensions, metrics FROM account_data WHERE view_id = $clean_view_id";
 			$data = DB::query($sql);
 
-			$output = [];
+			$output['dates'] = [];
 			foreach($data as $key => $value) {
 
 				$dimension = false;
@@ -306,12 +308,17 @@
 				}
 
 				$output[$date][$dimension] = unserialize($value['metrics']);
-				ksort($output[$date]);
 				//$output[$dimension][$date] = unserialize($value['metrics']);
 				//ksort($output[$dimension]);
 			}
 
 			ksort($output);
+
+			// echo '<pre>';
+			// 	print_r($output);
+			// echo '</pre>';
+
+			// die;
 
 			return $output;
 
@@ -393,7 +400,7 @@
 			return $accounts;
 		}
 
-		public static function get_total($accounts) {
+		public static function get_total_by_day($accounts) {
 
 			$total = [];
 
@@ -404,21 +411,41 @@
 							if(!isset($total[$date][$dimension][$metric])) {
 								$total[$date][$dimension][$metric] = 0;
 							}
-							if(!isset($total['summary'][$dimension][$metric])) {
-								$total['summary'][$dimension][$metric] = 0;
-							}
 							$total[$date][$dimension][$metric] += $value;
-							$total['summary'][$dimension][$metric] += $value;
  						}
 					}
 				}
 			}
 
+			ksort($total);
+
 			// echo '<pre>';
 			//  	print_r($total);
 			// echo '</pre>';
+			
+			// die;
 
 			return $total;
+		}
+
+		public static function get_total_summary($accounts) {
+
+			$summary = [];
+
+			foreach($accounts as $account) {
+				foreach($account->data as $date => $dimensions) {
+					foreach($dimensions as $dimension => $metrics) {
+						foreach($metrics as $metric => $value) {
+							if(!isset($summary[$dimension][$metric])) {
+								$summary[$dimension][$metric] = 0;
+							}
+							$summary[$dimension][$metric] += $value;
+ 						}
+					}
+				}
+			}
+
+			return $summary;
 		}
 
 		public static function json_changestatus($input) {

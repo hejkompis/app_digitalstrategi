@@ -4,100 +4,102 @@
 
 		<div class="col-xs-12">
 
-			<h2><a href="/client/show/?id={{project.client.id}}">{{project.client.name}}</a>, {{project.name}}</h2>
+			<div class="dashhead">
+				
+				<div class="dashhead-titles">
+					<h6 class="dashhead-subtitle"><a href="/client/show/?id={{project.client.id}}">{{project.client.name}}</a></h6>
+					<h3 class="dashhead-title">{{project.name}}</h3>
+				</div>
+
+			</div>
 
 		</div>
 
 	</div>
 
-	<div class="row m-t m-b">
+	<div class="row m-t m-b-lg">
 
-		{% if current_user.admin %}
+		<div class="col-xs-12 col-sm-4 col-md-3">
 
-			<div class="col-xs-12 col-sm-4 col-md-3">
+			<form id="daterangepicker" method="get" action="?id={{project.id}}">
+				<input type="hidden" id="project_id" name="id" value="{{project.id}}" />
+				<input type="hidden" id="date_from" name="from" value="" />
+				<input type="hidden" id="date_to" name="to" value="" />
+			</form>
+			<div class="input-group">
+				<span class="input-group-addon">
+					<span class="icon icon-calendar"></span>
+				</span>
+				<input type="text" class="form-control" name="daterange" value="" />
+			</div>			
 
-				<form id="daterangepicker" method="get" action="?id={{project.id}}">
-					<input type="hidden" id="project_id" name="id" value="{{project.id}}" />
-					<input type="hidden" id="date_from" name="from" value="" />
-					<input type="hidden" id="date_to" name="to" value="" />
-				</form>
-				<div class="input-group">
-					<span class="input-group-addon">
-						<span class="icon icon-calendar"></span>
-					</span>
-					<input type="text" class="form-control" name="daterange" value="" />
-				</div>
-				
+			<script type="text/javascript">
 
-				<script type="text/javascript">
+				$('input[name="daterange"]').daterangepicker({
+				    "locale": {
+				        "format": "YYYY-MM-DD",
+				        "separator": " – ",
+				        "applyLabel": "Uppdatera",
+				        "cancelLabel": "Avbryt",
+				        "fromLabel": "Från",
+				        "toLabel": "Till",
+				        "customRangeLabel": "Anpassad",
+				        "weekLabel": "v.",
+				        "daysOfWeek": [
+				            "Sö",
+				            "Må",
+				            "Ti",
+				            "On",
+				            "To",
+				            "Fr",
+				            "Lö"
+				        ],
+				        "monthNames": [
+				            "Januari",
+				            "Februari",
+				            "Mars",
+				            "April",
+				            "Maj",
+				            "Juni",
+				            "Juli",
+				            "Augusti",
+				            "September",
+				            "Oktober",
+				            "November",
+				            "December"
+				        ],
+				        "firstDay": 1
+				    },
+				    showWeekNumbers: true,
+				    startDate: '{{from|date("Y-m-d")}}',
+				    endDate: '{{to|date("Y-m-d")}}',
+				    minDate: '{{project.start_date|date("Y-m-d")}}',
+				    maxDate: '{{to|date("Y-m-d")}}',
+				    applyClass: "btn btn-primary p-x",
+    				cancelClass: "btn btn-primary-outline p-x"
+   				});
 
-					$('input[name="daterange"]').daterangepicker({
-					    "locale": {
-					        "format": "YYYY-MM-DD",
-					        "separator": " – ",
-					        "applyLabel": "Uppdatera",
-					        "cancelLabel": "Avbryt",
-					        "fromLabel": "Från",
-					        "toLabel": "Till",
-					        "customRangeLabel": "Anpassad",
-					        "weekLabel": "v.",
-					        "daysOfWeek": [
-					            "Sö",
-					            "Må",
-					            "Ti",
-					            "On",
-					            "To",
-					            "Fr",
-					            "Lö"
-					        ],
-					        "monthNames": [
-					            "Januari",
-					            "Februari",
-					            "Mars",
-					            "April",
-					            "Maj",
-					            "Juni",
-					            "Juli",
-					            "Augusti",
-					            "September",
-					            "Oktober",
-					            "November",
-					            "December"
-					        ],
-					        "firstDay": 1
-					    },
-					    showWeekNumbers: true,
-					    startDate: '{{from|date("Y-m-d")}}',
-					    endDate: '{{to|date("Y-m-d")}}',
-					    minDate: '{{project.start_date|date("Y-m-d")}}',
-					    maxDate: '{{to|date("Y-m-d")}}',
-					    applyClass: "btn btn-primary p-x",
-    					cancelClass: "btn btn-primary-outline p-x"
-   					});
+   				$('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
+   					$('#date_from').val(picker.startDate.format('YYYY-MM-DD'));
+  					$('#date_to').val(picker.endDate.format('YYYY-MM-DD'));
+   					$('#daterangepicker').submit();
+				});
 
-   					$('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
-   						$('#date_from').val(picker.startDate.format('YYYY-MM-DD'));
-  						$('#date_to').val(picker.endDate.format('YYYY-MM-DD'));
-   						$('#daterangepicker').submit();
-					});
+			</script>	
 
-				</script>	
+		</div>
 
-			</div>
+		<div class="col-xs-12 col-sm-8 col-md-9">
 
-			<div class="col-xs-12 col-sm-8 col-md-9">
+			<a class="btn btn-primary-outline p-x" type="button" href="/project/show/?id={{project.id}}">Återställ</a>
 
-				<a class="btn btn-primary-outline p-x" type="button" href="/project/show/?id={{project.id}}">Visa alla datum</a>
+			{% if current_user.admin %}
 
-				{% if current_user.admin %}
+				<a class="btn btn-primary-outline p-x pull-right" type="button" href="/project/edit/?id={{project.id}}">Redigera</a>
 
-					<a class="btn btn-primary-outline p-x pull-right" type="button" href="/project/edit/?id={{project.id}}">Redigera</a>
+			{% endif %}
 
-				{% endif %}
-
-			</div>
-
-		{% endif %}
+		</div>
 
 	</div>
 
@@ -106,63 +108,164 @@
 		<div class="col-xs-12 m-b-md">
 
 			<div class="hr-divider">
-				<h3 class="hr-divider-content hr-divider-heading">
-					Sammanfattande statistik
-				</h3>
+
+				<ul class="graph-tabs nav nav-pills hr-divider-content hr-divider-nav" role="tablist">	
+
+					<li role="presentation" class="active">
+						<a href="#total-summary" aria-controls="total-summary" role="tab" data-toggle="tab">Sammanfattning</a>
+					</li>
+
+					{% if accounts|length > 1 %}
+				
+						{% for key, account in accounts %}
+
+							<li role="presentation">
+								<a href="#total-summary-{{key}}" aria-controls="total-summary-{{key}}" role="tab" data-toggle="tab">{{account.name}}</a>
+							</li>
+
+						{% endfor %}
+
+					{% endif %}
+
+				</ul>
+
 			</div>
 
 		</div>
 
-		<div class="col-xs-12 col-sm-6 col-md-4">
+		<div class="tab-content">
 
-			<div class="statcard p-a-md">
-				<h3 class="statcard-number">
-					{{total.summary.date.users}}
-					{# <small class="delta-indicator delta-positive">5%</small> #}
-				</h3>
-				<span class="statcard-desc">Besökare under perioden</span>
+			<div role="tabpanel" class="col-xs-12 tab-pane fade in active" id="total-summary">
+
+				<div class="col-xs-12 col-sm-6 col-md-4">
+
+					<div class="statcard p-a-md">
+						<h3 class="statcard-number">
+							{{summary.date.users}}
+							{# <small class="delta-indicator delta-positive">5%</small> #}
+						</h3>
+						<span class="statcard-desc">Besökare under perioden</span>
+					</div>
+
+				</div>
+
+				<div class="col-xs-12 col-sm-6 col-md-4">
+
+					{% set actual_conversion_rate = ((summary.date.goalCompletionsAll / summary.date.users)*100)|round %}
+
+					{% if actual_conversion_rate >= project.conversion_rate %}
+
+						{% set success = true %}
+
+					{% else %}
+
+						{% set success = false %}
+
+					{% endif %}
+
+					<div class="statcard p-a-md">
+						<h3 class="statcard-number">
+							{{summary.date.goalCompletionsAll}}
+							{% if success %}
+								<small class="delta-indicator delta-positive">{{actual_conversion_rate}}%</small>
+							{% else %}
+								<small class="delta-indicator delta-negative">{{actual_conversion_rate}}%</small>
+							{% endif %}
+						</h3>
+						<span class="statcard-desc">Konverteringar ({{project.conversion_rate}}% är målsiffran)</span>
+					</div>
+
+				</div>
+
+				<div class="col-xs-12 col-sm-6 col-md-4">
+
+					{% set desired_conversion_rate = ((project.conversion_rate * summary.date.users)/100)|round %}
+
+					<div class="statcard p-a-md">
+						<h3 class="statcard-number">
+							{{desired_conversion_rate}}
+						</h3>
+						<span class="statcard-desc">Önskat antal konverteringar ({{project.conversion_rate}}%)</span>
+					</div>
+
+				</div>
+
 			</div>
 
-		</div>
+			{% if accounts|length > 1 %}
 
-		<div class="col-xs-12 col-sm-6 col-md-4">
+				{% for key, account in accounts %}
 
-			{% set actual_conversion_rate = ((total.summary.date.goalCompletionsAll / total.summary.date.users)*100)|round %}
+					{% set account_users = 0 %}
+					{% for day in account.data %}
+						{% set account_users = account_users + day.date.users %}
+					{% endfor %}
 
-			{% if actual_conversion_rate >= project.conversion_rate %}
+					{% set account_leads = 0 %}
+					{% for day in account.data %}
+						{% set account_leads = account_leads + day.date.goalCompletionsAll %}
+					{% endfor %}
 
-				{% set success = true %}
+					<div role="tabpanel" class="col-xs-12 tab-pane fade" id="total-summary-{{key}}">
 
-			{% else %}
+						<div class="col-xs-12 col-sm-6 col-md-4">
 
-				{% set success = false %}
+							<div class="statcard p-a-md">
+								<h3 class="statcard-number">
+									{{account_users}}
+									{# <small class="delta-indicator delta-positive">5%</small> #}
+								</h3>
+								<span class="statcard-desc">Besökare under perioden</span>
+							</div>
+
+						</div>
+
+						<div class="col-xs-12 col-sm-6 col-md-4">
+
+							{% set actual_conversion_rate = ((account_leads / account_users)*100)|round %}
+
+							{% if actual_conversion_rate >= project.conversion_rate %}
+
+								{% set success = true %}
+
+							{% else %}
+
+								{% set success = false %}
+
+							{% endif %}
+
+							<div class="statcard p-a-md">
+								<h3 class="statcard-number">
+									{{account_leads}}
+									{% if success %}
+										<small class="delta-indicator delta-positive">{{actual_conversion_rate}}%</small>
+									{% else %}
+										<small class="delta-indicator delta-negative">{{actual_conversion_rate}}%</small>
+									{% endif %}
+								</h3>
+								<span class="statcard-desc">Konverteringar ({{project.conversion_rate}}% är målsiffran)</span>
+							</div>
+
+						</div>
+
+						<div class="col-xs-12 col-sm-6 col-md-4">
+
+							{% set desired_conversion_rate = ((project.conversion_rate * account_users)/100)|round %}
+
+							<div class="statcard p-a-md">
+								<h3 class="statcard-number">
+									{{desired_conversion_rate}}
+								</h3>
+								<span class="statcard-desc">Önskat antal konverteringar ({{project.conversion_rate}}%)</span>
+							</div>
+
+						</div>
+
+					</div>
+
+				{% endfor %}
 
 			{% endif %}
-
-			<div class="statcard p-a-md">
-				<h3 class="statcard-number">
-					{{total.summary.date.goalCompletionsAll}}
-					{% if success %}
-						<small class="delta-indicator delta-positive">{{actual_conversion_rate}}%</small>
-					{% else %}
-						<small class="delta-indicator delta-negative">{{actual_conversion_rate}}%</small>
-					{% endif %}
-				</h3>
-				<span class="statcard-desc">Konverteringar ({{project.conversion_rate}}% är målsiffran)</span>
-			</div>
-
-		</div>
-
-		<div class="col-xs-12 col-sm-6 col-md-4">
-
-			{% set desired_conversion_rate = ((project.conversion_rate * total.summary.date.users)/100)|round %}
-
-			<div class="statcard p-a-md">
-				<h3 class="statcard-number">
-					{{desired_conversion_rate}}
-				</h3>
-				<span class="statcard-desc">Önskat antal konverteringar ({{project.conversion_rate}}%)</span>
-			</div>
 
 		</div>
 
@@ -178,20 +281,20 @@
 
 					<ul class="graph-tabs nav nav-pills hr-divider-content hr-divider-nav" role="tablist">
 
-						<li class="active" role="presentation">
-							<a href="#users" aria-controls="users" role="tab" data-toggle="tab">Besök{% if accounts|length > 1 %}/bolag{% endif %}</a>
-						</li>
-						<li role="presentation">
-							<a href="#leads" aria-controls="leads" role="tab" data-toggle="tab">Leads{% if accounts|length > 1 %}/bolag{% endif %}</a>
-						</li>
 						{% if accounts|length > 1 %}
-							<li role="presentation">
-								<a href="#users-total" aria-controls="users" role="tab" data-toggle="tab">Besök/totalt</a>
+							<li {% if accounts|length > 1 %}class="active"{% endif %}role="presentation">
+								<a href="#leads-total" aria-controls="leads-total" role="tab" data-toggle="tab">Leads/totalt</a>
 							</li>
 							<li role="presentation">
-								<a href="#leads-total" aria-controls="leads" role="tab" data-toggle="tab">Leads/totalt</a>
+								<a href="#users-total" aria-controls="users-total" role="tab" data-toggle="tab">Besök/totalt</a>
 							</li>
 						{% endif %}
+						<li role="presentation" {% if accounts|length == 1 %}class="active"{% endif %}>
+							<a href="#leads" aria-controls="leads" role="tab" data-toggle="tab">Leads{% if accounts|length > 1 %}/bolag{% endif %}</a>
+						</li>
+						<li role="presentation">
+							<a href="#users" aria-controls="users" role="tab" data-toggle="tab">Besök{% if accounts|length > 1 %}/bolag{% endif %}</a>
+						</li>
 
 					</ul>
 
@@ -201,117 +304,60 @@
 
 			<div class="tab-content">
 
-				<div role="tabpanel" class="col-xs-12 tab-pane fade in active" id="users">
-
-					<canvas id="users-chart"></canvas>
-
-					<script type="text/javascript">
-
-						var users_chart = document.getElementById("users-chart");
-						var users_data = {
-						    labels: [
-						    	{% for date in dates %}
-									'{{date|date("Y-m-d")}}',
-								{% endfor %}
-						    ],
-						    datasets: [
-						        {% for account in accounts %}
-						        	{
-							            label: "{{account.name}}",
-							            fill: false,
-							            lineTension: 0.1,
-							            backgroundColor: "rgba({{account.colour}},0.4)",
-							            borderColor: "rgba({{account.colour}},1)",
-							            borderCapStyle: 'butt',
-							            borderDash: [],
-							            borderDashOffset: 0.0,
-							            borderJoinStyle: 'miter',
-							            pointBorderColor: "rgba({{account.colour}},1)",
-							            pointBackgroundColor: "#fff",
-							            pointBorderWidth: 1,
-							            pointHoverRadius: 5,
-							            pointHoverBackgroundColor: "rgba({{account.colour}},1)",
-							            pointHoverBorderColor: "rgba(220,220,220,1)",
-							            pointHoverBorderWidth: 2,
-							            pointRadius: 1,
-							            pointHitRadius: 10,
-							            data: [
-							            	{% for day in account.data %}
-												{{day.date.users}},
-											{% endfor %}
-							            ],
-							            spanGaps: false,
-						        	},
-						        {% endfor %}
-						    ]
-						};
-						var users_options = [];
-						var myLineChart = new Chart(users_chart, {
-						    type: 'line',
-						    data: users_data,
-						    options: users_options
-						});
-
-					</script>
-
-				</div>
-
-				<div role="tabpanel" class="col-xs-12 tab-pane fade" id="leads">
-
-					<canvas id="leads-chart"></canvas>
-
-					<script type="text/javascript">
-
-						var leads_chart = document.getElementById("leads-chart");
-						var leads_data = {
-						    labels: [
-						    	{% for date in dates %}
-									'{{date|date("Y-m-d")}}',
-								{% endfor %}
-						    ],
-						    datasets: [
-						        {% for account in accounts %}
-						        	{
-							            label: "{{account.name}}",
-							            fill: false,
-							            lineTension: 0.1,
-							            backgroundColor: "rgba({{account.colour}},0.4)",
-							            borderColor: "rgba({{account.colour}},1)",
-							            borderCapStyle: 'butt',
-							            borderDash: [],
-							            borderDashOffset: 0.0,
-							            borderJoinStyle: 'miter',
-							            pointBorderColor: "rgba({{account.colour}},1)",
-							            pointBackgroundColor: "#fff",
-							            pointBorderWidth: 1,
-							            pointHoverRadius: 5,
-							            pointHoverBackgroundColor: "rgba({{account.colour}},1)",
-							            pointHoverBorderColor: "rgba(220,220,220,1)",
-							            pointHoverBorderWidth: 2,
-							            pointRadius: 1,
-							            pointHitRadius: 10,
-							            data: [
-							            	{% for day in account.data %}
-												{{day.date.goalCompletionsAll}},
-											{% endfor %}
-							            ],
-							            spanGaps: false,
-						        	},
-						        {% endfor %}
-						    ]
-						};
-						var leads_options = [];
-						var myLineChart = new Chart(leads_chart, {
-						    type: 'line',
-						    data: leads_data,
-						    options: leads_options
-						});
-
-					</script>
-
-				</div>
-
 				{% if accounts|length > 1 %}
+
+					<div role="tabpanel" class="col-xs-12 tab-pane fade {% if accounts|length > 1 %}in active{% endif %}" id="leads-total">
+
+						<canvas id="leads-total-chart"></canvas>
+
+						<script type="text/javascript">
+
+							var leads_total_chart = document.getElementById("leads-total-chart");
+							var leads_total_data = {
+							    labels: [
+							    	{% for date in dates %}
+										'{{date|date("Y-m-d")}}',
+									{% endfor %}
+							    ],
+							    datasets: [
+							        	{
+								            label: "Totalt på {{accounts|length}} bolag",
+								            fill: false,
+								            lineTension: 0.1,
+								            backgroundColor: "rgba(255,182,0,0.4)",
+								            borderColor: "rgba(255,182,0,1)",
+								            borderCapStyle: 'butt',
+								            borderDash: [],
+								            borderDashOffset: 0.0,
+								            borderJoinStyle: 'miter',
+								            pointBorderColor: "rgba(255,182,0,1)",
+								            pointBackgroundColor: "#fff",
+								            pointBorderWidth: 1,
+								            pointHoverRadius: 5,
+								            pointHoverBackgroundColor: "rgba(255,182,0,1)",
+								            pointHoverBorderColor: "rgba(220,220,220,1)",
+								            pointHoverBorderWidth: 2,
+								            pointRadius: 1,
+								            pointHitRadius: 10,
+								            data: [
+								            	{% for day in total %}
+													{{day.date.goalCompletionsAll}},
+												{% endfor %}
+								            ],
+								            spanGaps: false,
+							        	},
+							    ]
+							};
+							var leads_total_options = [];
+							var myLineChart = new Chart(leads_total_chart, {
+							    type: 'line',
+							    data: leads_total_data,
+							    options: leads_total_options
+							});
+
+						</script>
+
+					</div>
 
 					<div role="tabpanel" class="col-xs-12 tab-pane fade" id="users-total">
 
@@ -366,60 +412,117 @@
 
 					</div>
 
-					<div role="tabpanel" class="col-xs-12 tab-pane fade" id="leads-total">
-
-						<canvas id="leads-total-chart"></canvas>
-
-						<script type="text/javascript">
-
-							var leads_total_chart = document.getElementById("leads-total-chart");
-							var leads_total_data = {
-							    labels: [
-							    	{% for date in dates %}
-										'{{date|date("Y-m-d")}}',
-									{% endfor %}
-							    ],
-							    datasets: [
-							        	{
-								            label: "Totalt på {{accounts|length}} bolag",
-								            fill: false,
-								            lineTension: 0.1,
-								            backgroundColor: "rgba(255,182,0,0.4)",
-								            borderColor: "rgba(255,182,0,1)",
-								            borderCapStyle: 'butt',
-								            borderDash: [],
-								            borderDashOffset: 0.0,
-								            borderJoinStyle: 'miter',
-								            pointBorderColor: "rgba(255,182,0,1)",
-								            pointBackgroundColor: "#fff",
-								            pointBorderWidth: 1,
-								            pointHoverRadius: 5,
-								            pointHoverBackgroundColor: "rgba(255,182,0,1)",
-								            pointHoverBorderColor: "rgba(220,220,220,1)",
-								            pointHoverBorderWidth: 2,
-								            pointRadius: 1,
-								            pointHitRadius: 10,
-								            data: [
-								            	{% for day in total %}
-													{{day.date.goalCompletionsAll}},
-												{% endfor %}
-								            ],
-								            spanGaps: false,
-							        	},
-							    ]
-							};
-							var leads_total_options = [];
-							var myLineChart = new Chart(leads_total_chart, {
-							    type: 'line',
-							    data: leads_total_data,
-							    options: leads_total_options
-							});
-
-						</script>
-
-					</div>
-
 				{% endif %}
+
+				<div role="tabpanel" class="col-xs-12 tab-pane fade {% if accounts|length == 1 %}in active{% endif %}" id="leads">
+
+					<canvas id="leads-chart"></canvas>
+
+					<script type="text/javascript">
+
+						var leads_chart = document.getElementById("leads-chart");
+						var leads_data = {
+						    labels: [
+						    	{% for date in dates %}
+									'{{date|date("Y-m-d")}}',
+								{% endfor %}
+						    ],
+						    datasets: [
+						        {% for account in accounts %}
+						        	{
+							            label: "{{account.name}}",
+							            fill: false,
+							            lineTension: 0.1,
+							            backgroundColor: "rgba({{account.colour}},0.4)",
+							            borderColor: "rgba({{account.colour}},1)",
+							            borderCapStyle: 'butt',
+							            borderDash: [],
+							            borderDashOffset: 0.0,
+							            borderJoinStyle: 'miter',
+							            pointBorderColor: "rgba({{account.colour}},1)",
+							            pointBackgroundColor: "#fff",
+							            pointBorderWidth: 1,
+							            pointHoverRadius: 5,
+							            pointHoverBackgroundColor: "rgba({{account.colour}},1)",
+							            pointHoverBorderColor: "rgba(220,220,220,1)",
+							            pointHoverBorderWidth: 2,
+							            pointRadius: 1,
+							            pointHitRadius: 10,
+							            data: [
+							            	{% for day in account.data %}
+												{{day.date.goalCompletionsAll}},
+											{% endfor %}
+							            ],
+							            spanGaps: false,
+						        	},
+						        {% endfor %}
+						    ]
+						};
+						var leads_options = [];
+						var myLineChart = new Chart(leads_chart, {
+						    type: 'line',
+						    data: leads_data,
+						    options: leads_options
+						});
+
+					</script>
+
+				</div>
+
+				<div role="tabpanel" class="col-xs-12 tab-pane fade" id="users">
+
+					<canvas id="users-chart"></canvas>
+
+					<script type="text/javascript">
+
+						var users_chart = document.getElementById("users-chart");
+						var users_data = {
+						    labels: [
+						    	{% for date in dates %}
+									'{{date|date("Y-m-d")}}',
+								{% endfor %}
+						    ],
+						    datasets: [
+						        {% for account in accounts %}
+						        	{
+							            label: "{{account.name}}",
+							            fill: false,
+							            lineTension: 0.1,
+							            backgroundColor: "rgba({{account.colour}},0.4)",
+							            borderColor: "rgba({{account.colour}},1)",
+							            borderCapStyle: 'butt',
+							            borderDash: [],
+							            borderDashOffset: 0.0,
+							            borderJoinStyle: 'miter',
+							            pointBorderColor: "rgba({{account.colour}},1)",
+							            pointBackgroundColor: "#fff",
+							            pointBorderWidth: 1,
+							            pointHoverRadius: 5,
+							            pointHoverBackgroundColor: "rgba({{account.colour}},1)",
+							            pointHoverBorderColor: "rgba(220,220,220,1)",
+							            pointHoverBorderWidth: 2,
+							            pointRadius: 1,
+							            pointHitRadius: 10,
+							            data: [
+							            	{% for day in account.data %}
+												{{day.date.users}},
+											{% endfor %}
+							            ],
+							            spanGaps: false,
+						        	},
+						        {% endfor %}
+						    ]
+						};
+						var users_options = [];
+						var myLineChart = new Chart(users_chart, {
+						    type: 'line',
+						    data: users_data,
+						    options: users_options
+						});
+
+					</script>
+
+				</div>
 
 			</div>
 
@@ -429,23 +532,21 @@
 
 	<div class="row m-b-lg">
 
-		{% if ga_results %}
+		{% if accounts > 1 %}
 
 			<div class="col-xs-12 m-b-md">
 
 				<div class="hr-divider">
 
 					<ul class="graph-tabs nav nav-pills hr-divider-content hr-divider-nav" role="tablist">
+					
+						{% for key, account in accounts %}
 
-						<li class="active" role="presentation">
-							<a href="#users-week" aria-controls="users-week" role="tab" data-toggle="tab">Besök/rapportperiod</a>
-						</li>
-						<li role="presentation">
-							<a href="#users-week-total" aria-controls="users-week-total" role="tab" data-toggle="tab">Totalt antal besök/rapportperiod</a>
-						</li>
-						<li role="presentation">
-							<a href="#leads-week" aria-controls="leads-week" role="tab" data-toggle="tab">Leads/rapportperiod</a>
-						</li>
+							<li role="presentation" {% if key == 0 %}class="active"{% endif %}>
+								<a href="#daily-summary-{{key}}" aria-controls="daily-summary-{{key}}" role="tab" data-toggle="tab">{{account.name}}</a>
+							</li>
+
+						{% endfor %}
 
 					</ul>
 
@@ -455,168 +556,88 @@
 
 			<div class="tab-content">
 
-				<div role="tabpanel" class="col-xs-12 tab-pane fade in active" id="users-week">
+				{% for key, account in accounts %}
 
-					<canvas id="users-chart-weeks"></canvas>
+					<div role="tabpanel" class="col-xs-12 tab-pane fade{% if key == 0 %} in active{% endif %}" id="daily-summary-{{key}}">
 
-					<script type="text/javascript">
+						<canvas id="daily-chart-{{key}}"></canvas>
 
-						var users_week_chart = document.getElementById("users-chart-weeks");
-						var users_week_data = {
-						    labels: [
-						    	{% for week in weeks %}
-									'{{week}}',
-								{% endfor %}
-						    ],
-						    datasets: [
-						        {% for ga_result in ga_total_results %}
-						        	{
-							            label: "{{ga_result.name}}",
-							            fill: false,
-							            lineTension: 0.1,
-							            backgroundColor: "rgba({{ga_result.colour}},0.4)",
-							            borderColor: "rgba({{ga_result.colour}},1)",
-							            borderCapStyle: 'butt',
-							            borderDash: [],
-							            borderDashOffset: 0.0,
-							            borderJoinStyle: 'miter',
-							            pointBorderColor: "rgba({{ga_result.colour}},1)",
-							            pointBackgroundColor: "#fff",
-							            pointBorderWidth: 1,
-							            pointHoverRadius: 5,
-							            pointHoverBackgroundColor: "rgba({{ga_result.colour}},1)",
-							            pointHoverBorderColor: "rgba(220,220,220,1)",
-							            pointHoverBorderWidth: 2,
-							            pointRadius: 1,
-							            pointHitRadius: 10,
-							            data: [
-							            	{% for users_per_week in ga_result.users_per_week %}
-												{{users_per_week}},
+						<script type="text/javascript">
+
+							var account_daily_summary_{{key}} = document.getElementById("daily-chart-{{key}}");
+							var account_daily_data_{{key}} = {
+							    labels: [
+							    	{% for date in dates %}
+										'{{date|date("Y-m-d")}}',
+									{% endfor %}
+							    ],
+							    datasets: [
+							    	{
+								        label: "Leads",
+								        fill: false,
+								        lineTension: 0.1,
+								        backgroundColor: "rgba({{account.colour}},0.4)",
+								        borderColor: "rgba({{account.colour}},1)",
+								        borderCapStyle: 'butt',
+								        borderDash: [],
+								        borderDashOffset: 0.0,
+								        borderJoinStyle: 'miter',
+								        pointBorderColor: "rgba({{account.colour}},1)",
+								        pointBackgroundColor: "#fff",
+								        pointBorderWidth: 1,
+								        pointHoverRadius: 5,
+								        pointHoverBackgroundColor: "rgba({{account.colour}},1)",
+								        pointHoverBorderColor: "rgba(220,220,220,1)",
+								        pointHoverBorderWidth: 2,
+								        pointRadius: 1,
+								        pointHitRadius: 10,
+								        data: [
+								        	{% for day in account.data %}
+												{{day.date.goalCompletionsAll}},
 											{% endfor %}
-							            ],
-							            spanGaps: false,
-						        	},
-						        {% endfor %}
-						    ]
-						};
-						var users_week_options = [];
-						var myLineChart = new Chart(users_week_chart, {
-						    type: 'line',
-						    data: users_week_data,
-						    options: users_week_options
-						});
-
-					</script>
-
-				</div>
-
-				<div role="tabpanel" class="col-xs-12 tab-pane fade in active" id="users-week-total">
-
-					<canvas id="users-week-total-chart"></canvas>
-
-					<script type="text/javascript">
-
-						var users_week_total_chart = document.getElementById("users-week-total-chart");
-						var users_week_total_data = {
-						    labels: [
-						    	{% for week in weeks %}
-									'{{week}}',
-								{% endfor %}
-						    ],
-						    datasets: [
-						        	{
-							            label: "Totalt",
-							            fill: false,
-							            lineTension: 0.1,
-							            backgroundColor: "rgba(255,182,0,0.4)",
-							            borderColor: "rgba(255,182,0,1)",
-							            borderCapStyle: 'butt',
-							            borderDash: [],
-							            borderDashOffset: 0.0,
-							            borderJoinStyle: 'miter',
-							            pointBorderColor: "rgba(255,182,0,1)",
-							            pointBackgroundColor: "#fff",
-							            pointBorderWidth: 1,
-							            pointHoverRadius: 5,
-							            pointHoverBackgroundColor: "rgba(255,182,0,1)",
-							            pointHoverBorderColor: "rgba(220,220,220,1)",
-							            pointHoverBorderWidth: 2,
-							            pointRadius: 1,
-							            pointHitRadius: 10,
-							            data: [
-							            	{% for users in ga_weekly_summary.users %}
-												{{users}},
+								        ],
+								        spanGaps: false,
+							        },
+							        {
+								        label: "Besökare",
+								        fill: false,
+								        lineTension: 0.1,
+								        backgroundColor: "rgba({{account.colour}},0.4)",
+								        borderColor: "rgba({{account.colour}},.4)",
+								        borderCapStyle: 'butt',
+								        borderDash: [],
+								        borderDashOffset: 0.0,
+								        borderJoinStyle: 'miter',
+								        pointBorderColor: "rgba({{account.colour}},.4)",
+								        pointBackgroundColor: "#fff",
+								        pointBorderWidth: 1,
+								        pointHoverRadius: 5,
+								        pointHoverBackgroundColor: "rgba({{account.colour}},.4)",
+								        pointHoverBorderColor: "rgba(220,220,220,.4)",
+								        pointHoverBorderWidth: 2,
+								        pointRadius: 1,
+								        pointHitRadius: 10,
+								        data: [
+								        	{% for day in account.data %}
+												{{day.date.users}},
 											{% endfor %}
-							            ],
-							            spanGaps: false,
-						        	},
-						    ]
-						};
-						var users_week_total_options = [];
-						var myLineChart = new Chart(users_week_total_chart, {
-						    type: 'line',
-						    data: users_week_total_data,
-						    options: users_week_total_options
-						});
+								        ],
+								        spanGaps: false,
+							        }
+							    ]
+							};
+							var account_daily_options_{{key}} = [];
+							var account_daily_chart_{{key}} = new Chart(account_daily_summary_{{key}}, {
+							    type: 'line',
+							    data: account_daily_data_{{key}},
+							    options: account_daily_options_{{key}}
+							});
 
-					</script>
+						</script>
 
-				</div>
+					</div>
 
-				<div role="tabpanel" class="col-xs-12 tab-pane fade" id="leads-week">
-
-					<canvas id="leads-week-chart"></canvas>
-
-					<script type="text/javascript">
-
-						var leads_week_chart = document.getElementById("leads-week-chart");
-						var leads_week_data = {
-						    labels: [
-						    	{% for week in weeks %}
-									'{{week}}',
-								{% endfor %}
-						    ],
-						    datasets: [
-						        {% for ga_result in ga_total_results %}
-						        	{
-							            label: "{{ga_result.name}}",
-							            fill: false,
-							            lineTension: 0.1,
-							            backgroundColor: "rgba({{ga_result.colour}},0.4)",
-							            borderColor: "rgba({{ga_result.colour}},1)",
-							            borderCapStyle: 'butt',
-							            borderDash: [],
-							            borderDashOffset: 0.0,
-							            borderJoinStyle: 'miter',
-							            pointBorderColor: "rgba({{ga_result.colour}},1)",
-							            pointBackgroundColor: "#fff",
-							            pointBorderWidth: 1,
-							            pointHoverRadius: 5,
-							            pointHoverBackgroundColor: "rgba({{ga_result.colour}},1)",
-							            pointHoverBorderColor: "rgba(220,220,220,1)",
-							            pointHoverBorderWidth: 2,
-							            pointRadius: 1,
-							            pointHitRadius: 10,
-							            data: [
-							            	{% for leads_per_week in ga_result.leads_per_week %}
-												{{leads_per_week}},
-											{% endfor %}
-							            ],
-							            spanGaps: false,
-						        	},
-						        {% endfor %}
-						    ]
-						};
-						var leads_week_options = [];
-						var myLineChart = new Chart(leads_week_chart, {
-						    type: 'line',
-						    data: leads_week_data,
-						    options: leads_week_options
-						});
-
-					</script>
-
-				</div>
+				{% endfor %}
 
 			</div>
 

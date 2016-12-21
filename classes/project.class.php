@@ -56,17 +56,19 @@
 
 			$raw_accounts 	= self::get_project_accounts($project->id);
 			$accounts 		= Account::filter_account_data($raw_accounts, $from, $to);
-			$total			= Account::get_total($accounts);
+			$total_by_day	= Account::get_total_by_day($accounts);
+			$total_summary	= Account::get_total_summary($accounts);
 
 			// echo '<pre>';
-			// 	print_r($total);
+			// 	print_r($total_by_day);
 			// echo '</pre>';
 
 			$output = [
-				'title'		=> $project->client->name.', '.$project->name,
+				'title'		=> $project->name.' - '.$project->client->name,
 				'project'	=> $project,
 				'accounts'	=> $accounts,
-				'total'		=> $total,
+				'total'		=> $total_by_day,
+				'summary' 	=> $total_summary,
 				'from'		=> $from,
 				'to' 		=> $to,
 				'dates'		=> $dates
