@@ -7,7 +7,7 @@
 
 		private function __construct() {
 
-			if(ROOT == "projektsajten.dev") {
+			if(ROOT == "projektsajten.dev" || ROOT == "192.168.33.106") {
 				$db = ['url' => 'localhost', 'user' => 'root', 'password' => 'root', 'database' => 'projektsajten'];
 			}
 			else {

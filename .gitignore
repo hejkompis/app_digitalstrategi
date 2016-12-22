@@ -1,5 +1,13 @@
-.DS_STORE
-# Created by https://www.gitignore.io/api/node
+
+# Created by https://www.gitignore.io/api/vagrant,git,node,grunt,sass
+
+### Vagrant ###
+.vagrant/
+
+
+### Git ###
+*.orig
+
 
 ### Node ###
 # Logs
@@ -49,3 +57,23 @@ jspm_packages
 
 # Yarn Integrity file
 .yarn-integrity
+
+
+
+### grunt ###
+# Grunt usually compiles files inside this directory
+dist/
+src/
+Gruntfile.js
+package.json
+
+# Grunt usually preprocesses files such as coffeescript, compass... inside the .tmp directory
+.tmp/
+
+
+### Sass ###
+.sass-cache/
+*.css.map
+
+# End of https://www.gitignore.io/api/vagrant,git,node,grunt,sass
+0
