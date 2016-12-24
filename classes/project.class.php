@@ -14,7 +14,8 @@
 			$this->id 				= $data['id'];
 			$this->name 			= $data['name'];
 			$this->start_date 		= $data['start_date'];
-			$this->end_date 		= $data['end_date'];
+			$this->end_date 		= $data['end_date'] !== null ? $data['end_date'] : strtotime('yesterday');
+			$this->end_date 		= $this->end_date > strtotime('yesterday') ? strtotime('yesterday'): $this->end_date;
 			$this->conversion_rate 	= $data['conversion_rate'];
 			$this->online 			= $data['online'];
 			$this->client 			= new Client($data['client_id']);
@@ -39,8 +40,29 @@
 			$clean_input	= DB::clean($input);
 			$project 		= new Project($clean_input['id']);
 
+			$compare_from = false;
+			$compare_to = false;
+
+			// just to get rid of unneccessary questions in url
+			if(isset($clean_input['compare_from']) && $clean_input['compare_from'] == '') {
+				header('Location: /project/show/?id='.$clean_input['id'].'&from='.$clean_input['from'].'&to='.$clean_input['to']);
+				die;
+			}
+			elseif(isset($clean_input['compare_from']) && $clean_input['compare_from'] != '') {
+
+				$compare_from = strtotime($clean_input['compare_from']);
+				$compare_to = strtotime($clean_input['compare_to']);
+				$comparison = true;
+
+			}
+			else {
+				$comparison = false;
+			}
+
+			//
 			$from = isset($clean_input['from']) ? strtotime($clean_input['from']) : $project->start_date;
 
+			//
 			$to = $project->end_date;
 			if($to > time() || $to === NULL) {
 				$to = strtotime('yesterday');
@@ -49,29 +71,55 @@
 				$to = strtotime($clean_input['to']);
 			}
 
+			//
 			$dates = [];
 			for($i = $from; $i <= $to; $i+=(60*60*24)) {
 				$dates[] = $i;
 			}
 
-			$raw_accounts 	= self::get_project_accounts($project->id);
-			$accounts 		= Account::filter_account_data($raw_accounts, $from, $to);
+			$accounts 		= self::get_project_accounts($project->id);
+			$accounts 		= Account::filter_account_data($accounts, $from, $to);
+
 			$total_by_day	= Account::get_total_by_day($accounts);
 			$total_summary	= Account::get_total_summary($accounts);
 
+			$comparison_dates = [];
+			$comparison_total_by_day = [];
+			$comparison_total_summary = [];
+
+			// comparison dates
+			if($comparison) {
+
+				$comparison = self::get_project_accounts($project->id);
+				$comparison = Account::filter_account_data($comparison, $compare_from, $compare_to);
+
+				$comparison_total_by_day 	= Account::get_total_by_day($comparison);
+				$comparison_total_summary 	= Account::get_total_summary($comparison);
+				
+				for($i = $compare_from; $i <= $compare_to; $i+=(60*60*24)) {
+					$comparison_dates[] = $i;
+				}
+			}
+			
 			// echo '<pre>';
-			// 	print_r($total_by_day);
+			// print_r($comparison);
 			// echo '</pre>';
 
 			$output = [
-				'title'		=> $project->name.' - '.$project->client->name,
-				'project'	=> $project,
-				'accounts'	=> $accounts,
-				'total'		=> $total_by_day,
-				'summary' 	=> $total_summary,
-				'from'		=> $from,
-				'to' 		=> $to,
-				'dates'		=> $dates
+				'title'					=> $project->name.' - '.$project->client->name,
+				'project'				=> $project,
+				'accounts'				=> $accounts,
+				'total'					=> $total_by_day,
+				'summary' 				=> $total_summary,
+				'from'					=> $from,
+				'to' 					=> $to,
+				'dates'					=> $dates,
+				'comparison' 			=> $comparison,
+				'comparison_total'		=> $comparison_total_by_day,
+				'comparison_summary' 	=> $comparison_total_summary,
+				'compare_from'			=> $compare_from,
+				'compare_to' 			=> $compare_to,
+				'comparison_dates' 		=> $comparison_dates
 			];
 
 			return $output;

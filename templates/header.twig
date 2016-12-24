@@ -23,6 +23,9 @@
         <!-- Daterange Picker -->
         <link rel="stylesheet" type="text/css" href="/css/style.css" />
 
+        <!-- pace -->
+        <script src="/js/pace.min.js"></script>
+
         <!-- Load the JavaScript API client and Sign-in library. -->
         <script src="https://apis.google.com/js/client:platform.js"></script>
         
@@ -44,6 +47,8 @@
     </head>
     
     <body>
+
+        <div class="pace-bg"></div>
     
         {% if current_user %}
             {% include "menu.twig" %}

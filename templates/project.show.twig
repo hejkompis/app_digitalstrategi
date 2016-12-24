@@ -19,89 +19,191 @@
 
 	<div class="row m-t m-b-lg">
 
-		<div class="col-xs-12 col-sm-4 col-md-3">
+		<div class="col-xs-12 col-sm-4 col-sm-push-8 col-md-6 col-md-push-6 text-right">
 
-			<form id="daterangepicker" method="get" action="?id={{project.id}}">
-				<input type="hidden" id="project_id" name="id" value="{{project.id}}" />
-				<input type="hidden" id="date_from" name="from" value="" />
-				<input type="hidden" id="date_to" name="to" value="" />
-			</form>
-			<div class="input-group">
-				<span class="input-group-addon">
-					<span class="icon icon-calendar"></span>
-				</span>
-				<input type="text" class="form-control" name="daterange" value="" />
-			</div>			
-
-			<script type="text/javascript">
-
-				$('input[name="daterange"]').daterangepicker({
-				    "locale": {
-				        "format": "YYYY-MM-DD",
-				        "separator": " – ",
-				        "applyLabel": "Uppdatera",
-				        "cancelLabel": "Avbryt",
-				        "fromLabel": "Från",
-				        "toLabel": "Till",
-				        "customRangeLabel": "Anpassad",
-				        "weekLabel": "v.",
-				        "daysOfWeek": [
-				            "Sö",
-				            "Må",
-				            "Ti",
-				            "On",
-				            "To",
-				            "Fr",
-				            "Lö"
-				        ],
-				        "monthNames": [
-				            "Januari",
-				            "Februari",
-				            "Mars",
-				            "April",
-				            "Maj",
-				            "Juni",
-				            "Juli",
-				            "Augusti",
-				            "September",
-				            "Oktober",
-				            "November",
-				            "December"
-				        ],
-				        "firstDay": 1
-				    },
-				    showWeekNumbers: true,
-				    startDate: '{{from|date("Y-m-d")}}',
-				    endDate: '{{to|date("Y-m-d")}}',
-				    minDate: '{{project.start_date|date("Y-m-d")}}',
-				    maxDate: '{{to|date("Y-m-d")}}',
-				    applyClass: "btn btn-primary p-x",
-    				cancelClass: "btn btn-primary-outline p-x"
-   				});
-
-   				$('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
-   					$('#date_from').val(picker.startDate.format('YYYY-MM-DD'));
-  					$('#date_to').val(picker.endDate.format('YYYY-MM-DD'));
-   					$('#daterangepicker').submit();
-				});
-
-			</script>	
-
-		</div>
-
-		<div class="col-xs-12 col-sm-8 col-md-9">
-
-			<a class="btn btn-primary-outline p-x" type="button" href="/project/show/?id={{project.id}}">Återställ</a>
+				<a class="btn btn-primary-outline p-x" type="button" data-toggle="collapse" data-target="#date-settings" aria-expanded="false" aria-controls="date-settings">Visa datuminställningar</a>
 
 			{% if current_user.admin %}
 
-				<a class="btn btn-primary-outline p-x pull-right" type="button" href="/project/edit/?id={{project.id}}">Redigera</a>
+				<a class="btn btn-primary-outline p-x" type="button" href="/project/edit/?id={{project.id}}">Redigera</a>
 
 			{% endif %}
 
 		</div>
 
+		<div class="col-xs-12 col-sm-8 col-sm-pull-4 col-md-6 col-md-pull-6">
+
+			<div class="collapse" id="date-settings">
+
+				<form id="daterangepicker" class="form-inline" method="get" action="?id={{project.id}}">
+					<input type="hidden" id="project_id" name="id" value="{{project.id}}" />
+					<input type="hidden" id="date_from" name="from" value="{{from|date("Y-m-d")}}" />
+					<input type="hidden" id="date_to" name="to" value="{{to|date("Y-m-d")}}" />
+					<input type="hidden" id="compare_from" name="compare_from" value="" />
+					<input type="hidden" id="compare_to" name="compare_to" value="" />
+
+				</form>
+
+				<div class="hr-divider m-b">
+					<h3 class="hr-divider-content hr-divider-heading">
+						Primära datum
+					</h3>
+				</div>
+			
+				<div class="input-group">
+					<span class="input-group-addon">
+						<span class="icon icon-calendar"></span>
+					</span>
+					<input id="daterange" type="text" class="form-control" name="daterange" value="" />
+				</div>
+
+				<div class="hr-divider m-t-md m-b">
+					<h3 class="hr-divider-content hr-divider-heading">
+						Jämförelsedatum
+					</h3>
+				</div>
+
+				<div class="input-group m-b">
+					<span class="input-group-addon">
+						<span class="icon icon-calendar"></span>
+					</span>
+					<input id="compare" type="text" class="form-control" name="compare" value="{% if comparison %}{{compare_from|date('Y-m-d')}} – {{compare_to|date('Y-m-d')}}{% endif %}" />
+				</div>
+
+				<a class="btn btn-primary-outline p-x" type="button" href="#" id="submit_dates">Ändra</a>
+
+				<a class="btn btn-primary-outline p-x" type="button" href="/project/show/?id={{project.id}}">Återställ</a>
+
+			</div>
+
+		</div>
+
 	</div>
+
+<script type="text/javascript">
+
+var startDate 	= '{{from|date("Y-m-d")}}';
+var endDate 	= '{{to|date("Y-m-d")}}';
+var minDate 	= '{{project.start_date|date("Y-m-d")}}';
+var maxDate 	= '{{project.end_date|date("Y-m-d")}}';
+
+$(document).ready(function() {
+
+	$('#submit_dates').on('click', function(e) {
+		e.preventDefault();
+		$('#daterangepicker').submit();
+		$('.pace-bg').addClass('active');
+	});
+
+	$('#daterange').daterangepicker({
+	  'locale': {
+	    'format': 'YYYY-MM-DD',
+	    'separator': ' – ',
+	    'applyLabel': 'Välj',
+	    'cancelLabel': 'Ångra',
+	    'fromLabel': 'Från',
+	    'toLabel': 'Till',
+	    'customRangeLabel': 'Anpassad',
+	    'weekLabel': 'v.',
+	    'daysOfWeek': [
+	      'Sö',
+	      'Må',
+	      'Ti',
+	      'On',
+	      'To',
+	      'Fr',
+	      'Lö'
+	    ],
+	    'monthNames': [
+	      'Januari',
+	      'Februari',
+	      'Mars',
+	      'April',
+	      'Maj',
+	      'Juni',
+	      'Juli',
+	      'Augusti',
+	      'September',
+	      'Oktober',
+	      'November',
+	      'December'
+	    ],
+	    'firstDay': 1
+	  },
+	  showWeekNumbers: true,
+	  applyClass: 'btn btn-primary p-x',
+	  cancelClass: 'btn btn-primary-outline p-x',
+	  startDate: startDate,
+	  endDate: endDate,
+	  minDate: minDate,
+	  maxDate: maxDate
+	});
+
+	$('#compare').daterangepicker({
+	  'locale': {
+	    'format': 'YYYY-MM-DD',
+	    'separator': ' – ',
+	    'applyLabel': 'Välj',
+	    'cancelLabel': 'Rensa',
+	    'fromLabel': 'Från',
+	    'toLabel': 'Till',
+	    'customRangeLabel': 'Anpassad',
+	    'weekLabel': 'v.',
+	    'daysOfWeek': [
+	      'Sö',
+	      'Må',
+	      'Ti',
+	      'On',
+	      'To',
+	      'Fr',
+	      'Lö'
+	    ],
+	    'monthNames': [
+	      'Januari',
+	      'Februari',
+	      'Mars',
+	      'April',
+	      'Maj',
+	      'Juni',
+	      'Juli',
+	      'Augusti',
+	      'September',
+	      'Oktober',
+	      'November',
+	      'December'
+	    ],
+	    'firstDay': 1
+	  },
+	  autoUpdateInput: false,
+	  showWeekNumbers: true,
+	  applyClass: 'btn btn-primary p-x',
+	  cancelClass: 'btn btn-primary-outline p-x',
+	  minDate: minDate,
+	  maxDate: maxDate
+	});
+
+	$('#date-settings').on('hide.bs.collapse', function () {
+	  $('[data-target="#date-settings"]').text('Visa datuminställningar');
+	});
+
+	$('#date-settings').on('show.bs.collapse', function () {
+	  $('[data-target="#date-settings"]').text('Dölj datuminställningar');
+	});
+
+	$('#daterange').on('apply.daterangepicker', function(ev, picker) {
+		$('#date_from').val(picker.startDate.format('YYYY-MM-DD'));
+		$('#date_to').val(picker.endDate.format('YYYY-MM-DD'));
+	});
+
+	$('#compare').on('apply.daterangepicker', function(ev, picker) {
+		$('#compare').val(picker.startDate.format('YYYY-MM-DD')+' – '+picker.endDate.format('YYYY-MM-DD'));
+		$('#compare_from').val(picker.startDate.format('YYYY-MM-DD'));
+		$('#compare_to').val(picker.endDate.format('YYYY-MM-DD'));
+	});
+
+});
+
+</script>
 
 	<div class="row m-b-lg">
 
@@ -315,37 +417,67 @@
 							var leads_total_chart = document.getElementById("leads-total-chart");
 							var leads_total_data = {
 							    labels: [
-							    	{% for date in dates %}
-										'{{date|date("Y-m-d")}}',
+							    	{% for key, date in dates %}
+										'{{date|date("Y-m-d")}} {% if comparison_dates %} ({{comparison_dates[key]|date("Y-m-d")}}){% endif %}',
 									{% endfor %}
 							    ],
 							    datasets: [
-							        	{
-								            label: "Totalt på {{accounts|length}} bolag",
-								            fill: false,
-								            lineTension: 0.1,
-								            backgroundColor: "rgba(255,182,0,0.4)",
-								            borderColor: "rgba(255,182,0,1)",
-								            borderCapStyle: 'butt',
-								            borderDash: [],
-								            borderDashOffset: 0.0,
-								            borderJoinStyle: 'miter',
-								            pointBorderColor: "rgba(255,182,0,1)",
-								            pointBackgroundColor: "#fff",
-								            pointBorderWidth: 1,
-								            pointHoverRadius: 5,
-								            pointHoverBackgroundColor: "rgba(255,182,0,1)",
-								            pointHoverBorderColor: "rgba(220,220,220,1)",
-								            pointHoverBorderWidth: 2,
-								            pointRadius: 1,
-								            pointHitRadius: 10,
-								            data: [
-								            	{% for day in total %}
+							        {
+								        label: "Totalt på {{accounts|length}} bolag",
+								        fill: false,
+								        lineTension: 0.1,
+								        backgroundColor: "rgba(255,182,0,0.4)",
+								        borderColor: "rgba(255,182,0,1)",
+								        borderCapStyle: 'butt',
+								        borderDash: [],
+								        borderDashOffset: 0.0,
+								        borderJoinStyle: 'miter',
+								        pointBorderColor: "rgba(255,182,0,1)",
+								        pointBackgroundColor: "#fff",
+								        pointBorderWidth: 1,
+								        pointHoverRadius: 5,
+								        pointHoverBackgroundColor: "rgba(255,182,0,1)",
+								        pointHoverBorderColor: "rgba(220,220,220,1)",
+								        pointHoverBorderWidth: 2,
+								        pointRadius: 1,
+								        pointHitRadius: 10,
+								        data: [
+								        	{% for day in total %}
+												{{day.date.goalCompletionsAll}},
+											{% endfor %}
+								        ],
+								        spanGaps: false
+							        }
+							        {% if comparison_total %}
+
+							        	,{
+									        label: "Jämförelse",
+									        fill: false,
+									        lineTension: 0.1,
+									        backgroundColor: "rgba(255,182,0,0.2)",
+									        borderColor: "rgba(255,182,0,0.2)",
+									        borderCapStyle: 'butt',
+									        borderDash: [],
+									        borderDashOffset: 0.0,
+									        borderJoinStyle: 'miter',
+									        pointBorderColor: "rgba(255,182,0,0.2)",
+									        pointBackgroundColor: "#fff",
+									        pointBorderWidth: 1,
+									        pointHoverRadius: 5,
+									        pointHoverBackgroundColor: "rgba(255,182,0,2)",
+									        pointHoverBorderColor: "rgba(220,220,220,0.2)",
+									        pointHoverBorderWidth: 2,
+									        pointRadius: 1,
+									        pointHitRadius: 10,
+									        data: [
+									        	{% for day in comparison_total %}
 													{{day.date.goalCompletionsAll}},
 												{% endfor %}
-								            ],
-								            spanGaps: false,
-							        	},
+									        ],
+									        spanGaps: false
+								    	}
+
+							        {% endif %}
 							    ]
 							};
 							var leads_total_options = [];
@@ -368,37 +500,67 @@
 							var users_total_chart = document.getElementById("users-total-chart");
 							var users_total_data = {
 							    labels: [
-							    	{% for date in dates %}
-										'{{date|date("Y-m-d")}}',
+							    	{% for key, date in dates %}
+										'{{date|date("Y-m-d")}} {% if comparison_dates %} ({{comparison_dates[key]|date("Y-m-d")}}){% endif %}',
 									{% endfor %}
 							    ],
 							    datasets: [
-							        	{
-								            label: "Totalt på {{accounts|length}} bolag",
-								            fill: false,
-								            lineTension: 0.1,
-								            backgroundColor: "rgba(255,182,0,0.4)",
-								            borderColor: "rgba(255,182,0,1)",
-								            borderCapStyle: 'butt',
-								            borderDash: [],
-								            borderDashOffset: 0.0,
-								            borderJoinStyle: 'miter',
-								            pointBorderColor: "rgba(255,182,0,1)",
-								            pointBackgroundColor: "#fff",
-								            pointBorderWidth: 1,
-								            pointHoverRadius: 5,
-								            pointHoverBackgroundColor: "rgba(255,182,0,1)",
-								            pointHoverBorderColor: "rgba(220,220,220,1)",
-								            pointHoverBorderWidth: 2,
-								            pointRadius: 1,
-								            pointHitRadius: 10,
-								            data: [
-								            	{% for day in total %}
+							        {
+								        label: "Totalt på {{accounts|length}} bolag",
+								        fill: false,
+								        lineTension: 0.1,
+								        backgroundColor: "rgba(28,168,221,1)",
+								        borderColor: "rgba(28,168,221,1)",
+								        borderCapStyle: 'butt',
+								        borderDash: [],
+								        borderDashOffset: 0.0,
+								        borderJoinStyle: 'miter',
+								        pointBorderColor: "rgba(28,168,221,1)",
+								        pointBackgroundColor: "#fff",
+								        pointBorderWidth: 1,
+								        pointHoverRadius: 5,
+								        pointHoverBackgroundColor: "rgba(28,168,221,1)",
+								        pointHoverBorderColor: "rgba(28,168,221,1)",
+								        pointHoverBorderWidth: 2,
+								        pointRadius: 1,
+								        pointHitRadius: 10,
+								        data: [
+								        	{% for day in total %}
+												{{day.date.users}},
+											{% endfor %}
+								        ],
+								        spanGaps: false,
+							        }
+							        {% if comparison_total %}
+
+							        	,{
+									        label: "Jämförelse",
+									        fill: false,
+									        lineTension: 0.1,
+									        backgroundColor: "rgba(28,168,221,.2)",
+									        borderColor: "rgba(28,168,221,.2)",
+									        borderCapStyle: 'butt',
+									        borderDash: [],
+									        borderDashOffset: 0.0,
+									        borderJoinStyle: 'miter',
+									        pointBorderColor: "rgba(28,168,221,.2)",
+									        pointBackgroundColor: "#fff",
+									        pointBorderWidth: 1,
+									        pointHoverRadius: 5,
+									        pointHoverBackgroundColor: "rgba(28,168,221,.2)",
+									        pointHoverBorderColor: "rgba(28,168,221,.2)",
+									        pointHoverBorderWidth: 2,
+									        pointRadius: 1,
+									        pointHitRadius: 10,
+									        data: [
+									        	{% for day in comparison_total %}
 													{{day.date.users}},
 												{% endfor %}
-								            ],
-								            spanGaps: false,
-							        	},
+									        ],
+									        spanGaps: false
+								    	}
+
+							        {% endif %}
 							    ]
 							};
 							var users_total_options = [];
@@ -423,17 +585,17 @@
 						var leads_chart = document.getElementById("leads-chart");
 						var leads_data = {
 						    labels: [
-						    	{% for date in dates %}
-									'{{date|date("Y-m-d")}}',
+						    	{% for key, date in dates %}
+									'{{date|date("Y-m-d")}} {% if comparison_dates %} ({{comparison_dates[key]|date("Y-m-d")}}){% endif %}',
 								{% endfor %}
 						    ],
 						    datasets: [
-						        {% for account in accounts %}
+						        {% for key, account in accounts %}
 						        	{
 							            label: "{{account.name}}",
 							            fill: false,
 							            lineTension: 0.1,
-							            backgroundColor: "rgba({{account.colour}},0.4)",
+							            backgroundColor: "rgba({{account.colour}},1)",
 							            borderColor: "rgba({{account.colour}},1)",
 							            borderCapStyle: 'butt',
 							            borderDash: [],
@@ -455,6 +617,34 @@
 							            ],
 							            spanGaps: false,
 						        	},
+						        	{% if comparison[key] %}
+						        		{
+								            label: "Jämförelse",
+								            fill: false,
+								            lineTension: 0.1,
+								            backgroundColor: "rgba({{comparison[key].colour}},.2)",
+								            borderColor: "rgba({{comparison[key].colour}},.2)",
+								            borderCapStyle: 'butt',
+								            borderDash: [],
+								            borderDashOffset: 0.0,
+								            borderJoinStyle: 'miter',
+								            pointBorderColor: "rgba({{comparison[key].colour}},.2)",
+								            pointBackgroundColor: "#fff",
+								            pointBorderWidth: 1,
+								            pointHoverRadius: 5,
+								            pointHoverBackgroundColor: "rgba({{comparison[key].colour}},.2)",
+								            pointHoverBorderColor: "rgba(220,220,220,.2)",
+								            pointHoverBorderWidth: 2,
+								            pointRadius: 1,
+								            pointHitRadius: 10,
+								            data: [
+								            	{% for day in comparison[key].data %}
+													{{day.date.goalCompletionsAll}},
+												{% endfor %}
+								            ],
+								            spanGaps: false,
+							        	},
+						        	{% endif %}
 						        {% endfor %}
 						    ]
 						};
@@ -478,12 +668,12 @@
 						var users_chart = document.getElementById("users-chart");
 						var users_data = {
 						    labels: [
-						    	{% for date in dates %}
-									'{{date|date("Y-m-d")}}',
+						    	{% for key, date in dates %}
+									'{{date|date("Y-m-d")}} {% if comparison_dates %} ({{comparison_dates[key]|date("Y-m-d")}}){% endif %}',
 								{% endfor %}
 						    ],
 						    datasets: [
-						        {% for account in accounts %}
+						        {% for key, account in accounts %}
 						        	{
 							            label: "{{account.name}}",
 							            fill: false,
@@ -510,6 +700,34 @@
 							            ],
 							            spanGaps: false,
 						        	},
+						        	{% if comparison[key] %}
+						        		{
+								            label: "Jämförelse",
+								            fill: false,
+								            lineTension: 0.1,
+								            backgroundColor: "rgba({{comparison[key].colour}},.2)",
+								            borderColor: "rgba({{comparison[key].colour}},.2)",
+								            borderCapStyle: 'butt',
+								            borderDash: [],
+								            borderDashOffset: 0.0,
+								            borderJoinStyle: 'miter',
+								            pointBorderColor: "rgba({{comparison[key].colour}},.2)",
+								            pointBackgroundColor: "#fff",
+								            pointBorderWidth: 1,
+								            pointHoverRadius: 5,
+								            pointHoverBackgroundColor: "rgba({{comparison[key].colour}},.2)",
+								            pointHoverBorderColor: "rgba(220,220,220,.2)",
+								            pointHoverBorderWidth: 2,
+								            pointRadius: 1,
+								            pointHitRadius: 10,
+								            data: [
+								            	{% for day in comparison[key].data %}
+													{{day.date.users}},
+												{% endfor %}
+								            ],
+								            spanGaps: false,
+							        	},
+						        	{% endif %}
 						        {% endfor %}
 						    ]
 						};
@@ -567,8 +785,8 @@
 							var account_daily_summary_{{key}} = document.getElementById("daily-chart-{{key}}");
 							var account_daily_data_{{key}} = {
 							    labels: [
-							    	{% for date in dates %}
-										'{{date|date("Y-m-d")}}',
+							    	{% for key, date in dates %}
+										'{{date|date("Y-m-d")}} {% if comparison_dates %} ({{comparison_dates[key]|date("Y-m-d")}}){% endif %}',
 									{% endfor %}
 							    ],
 							    datasets: [
@@ -576,18 +794,18 @@
 								        label: "Leads",
 								        fill: false,
 								        lineTension: 0.1,
-								        backgroundColor: "rgba({{account.colour}},0.4)",
-								        borderColor: "rgba({{account.colour}},1)",
+								        backgroundColor: "rgba(255,182,0,1)",
+								        borderColor: "rgba(255,182,0,1)",
 								        borderCapStyle: 'butt',
 								        borderDash: [],
 								        borderDashOffset: 0.0,
 								        borderJoinStyle: 'miter',
-								        pointBorderColor: "rgba({{account.colour}},1)",
+								        pointBorderColor: "rgba(255,182,0,1)",
 								        pointBackgroundColor: "#fff",
 								        pointBorderWidth: 1,
 								        pointHoverRadius: 5,
-								        pointHoverBackgroundColor: "rgba({{account.colour}},1)",
-								        pointHoverBorderColor: "rgba(220,220,220,1)",
+								        pointHoverBackgroundColor: "rgba(255,182,0,1)",
+								        pointHoverBorderColor: "rgba(255,182,0,1)",
 								        pointHoverBorderWidth: 2,
 								        pointRadius: 1,
 								        pointHitRadius: 10,
@@ -598,22 +816,50 @@
 								        ],
 								        spanGaps: false,
 							        },
+							        {% if comparison[key] %}
+						        		{
+								            label: "Jämförelse leads",
+								            fill: false,
+								            lineTension: 0.1,
+								            backgroundColor: "rgba(255,182,0,.3)",
+								            borderColor: "rgba(255,182,0,.3)",
+								            borderCapStyle: 'butt',
+								            borderDash: [],
+								            borderDashOffset: 0.0,
+								            borderJoinStyle: 'miter',
+								            pointBorderColor: "rgba(255,182,0,.3)",
+								            pointBackgroundColor: "#fff",
+								            pointBorderWidth: 1,
+								            pointHoverRadius: 5,
+								            pointHoverBackgroundColor: "rgba(255,182,0,.3)",
+								            pointHoverBorderColor: "rgba(255,182,0,.3)",
+								            pointHoverBorderWidth: 2,
+								            pointRadius: 1,
+								            pointHitRadius: 10,
+								            data: [
+								            	{% for day in comparison[key].data %}
+													{{day.date.goalCompletionsAll}},
+												{% endfor %}
+								            ],
+								            spanGaps: false,
+							        	},
+							        {% endif %}
 							        {
 								        label: "Besökare",
 								        fill: false,
 								        lineTension: 0.1,
-								        backgroundColor: "rgba({{account.colour}},0.4)",
-								        borderColor: "rgba({{account.colour}},.4)",
+								        backgroundColor: "rgba(28,168,221,.4)",
+								        borderColor: "rgba(28,168,221,.4)",
 								        borderCapStyle: 'butt',
 								        borderDash: [],
 								        borderDashOffset: 0.0,
 								        borderJoinStyle: 'miter',
-								        pointBorderColor: "rgba({{account.colour}},.4)",
+								        pointBorderColor: "rgba(28,168,221,.4)",
 								        pointBackgroundColor: "#fff",
 								        pointBorderWidth: 1,
 								        pointHoverRadius: 5,
-								        pointHoverBackgroundColor: "rgba({{account.colour}},.4)",
-								        pointHoverBorderColor: "rgba(220,220,220,.4)",
+								        pointHoverBackgroundColor: "rgba(28,168,221,.4)",
+								        pointHoverBorderColor: "rgba(28,168,221,.4)",
 								        pointHoverBorderWidth: 2,
 								        pointRadius: 1,
 								        pointHitRadius: 10,
@@ -623,7 +869,35 @@
 											{% endfor %}
 								        ],
 								        spanGaps: false,
-							        }
+							        },
+							        {% if comparison[key] %}
+						        		{
+								            label: "Jämförelse besökare",
+								            fill: false,
+								            lineTension: 0.1,
+								            backgroundColor: "rgba(28,168,221,.2)",
+								            borderColor: "rgba(28,168,221,.2)",
+								            borderCapStyle: 'butt',
+								            borderDash: [],
+								            borderDashOffset: 0.0,
+								            borderJoinStyle: 'miter',
+								            pointBorderColor: "rgba(28,168,221,.2)",
+								            pointBackgroundColor: "#fff",
+								            pointBorderWidth: 1,
+								            pointHoverRadius: 5,
+								            pointHoverBackgroundColor: "rgba(28,168,221,.2)",
+								            pointHoverBorderColor: "rgba(28,168,221,.2)",
+								            pointHoverBorderWidth: 2,
+								            pointRadius: 1,
+								            pointHitRadius: 10,
+								            data: [
+								            	{% for day in comparison[key].data %}
+													{{day.date.users}},
+												{% endfor %}
+								            ],
+								            spanGaps: false,
+							        	},
+						        	{% endif %}
 							    ]
 							};
 							var account_daily_options_{{key}} = [];

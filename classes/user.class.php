@@ -85,6 +85,9 @@
 
 			if(!isset($_SESSION["digitalstrategi"])) {
 
+				//$twig_data['http_referer'] = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+
+				//header('Location: /user/login?redirect_url=');
 				header('Location: /user/login');
 				die();
 
