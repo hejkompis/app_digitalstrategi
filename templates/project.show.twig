@@ -104,7 +104,7 @@ $(document).ready(function() {
 	    'fromLabel': 'Från',
 	    'toLabel': 'Till',
 	    'customRangeLabel': 'Anpassad',
-	    'weekLabel': 'v.',
+	    'weekLabel': 'v. ',
 	    'daysOfWeek': [
 	      'Sö',
 	      'Må',
@@ -130,7 +130,7 @@ $(document).ready(function() {
 	    ],
 	    'firstDay': 1
 	  },
-	  showWeekNumbers: true,
+	  showISOWeekNumbers: true,
 	  applyClass: 'btn btn-primary p-x',
 	  cancelClass: 'btn btn-primary-outline p-x',
 	  startDate: startDate,
@@ -905,6 +905,121 @@ $(document).ready(function() {
 							    type: 'line',
 							    data: account_daily_data_{{key}},
 							    options: account_daily_options_{{key}}
+							});
+
+						</script>
+
+					</div>
+
+				{% endfor %}
+
+			</div>
+
+		{% endif %}
+
+	</div>
+
+	<div class="row m-b-lg">
+
+		{% if reports %}
+
+			<div class="col-xs-12 m-b-md">
+
+				<div class="hr-divider">
+
+					<ul class="graph-tabs nav nav-pills hr-divider-content hr-divider-nav" role="tablist">
+					
+						{% for key, report in reports %}
+
+							<li role="presentation" {% if key == 0 %}class="active"{% endif %}>
+								<a href="#report-{{key}}" aria-controls="report-{{key}}" role="tab" data-toggle="tab">{{accounts[key].name}}</a>
+							</li>
+
+						{% endfor %}
+
+					</ul>
+
+				</div>
+
+			</div>
+
+			<div class="tab-content">
+
+				{% for key, report in reports %}
+
+					<div role="tabpanel" class="col-xs-12 tab-pane fade{% if key == 0 %} in active{% endif %}" id="report-{{key}}">
+
+						<canvas id="report-chart-{{key}}"></canvas>
+
+						<script type="text/javascript">
+
+							var report_{{key}} = document.getElementById("report-chart-{{key}}");
+							var report_data_{{key}} = {
+							    labels: [
+							    	{% for week in report_weeks %}
+										'{{week}}',
+									{% endfor %}
+							    ],
+							    datasets: [
+							    	{
+								        label: "Leads",
+								        fill: false,
+								        lineTension: 0.1,
+								        backgroundColor: "rgba(255,182,0,1)",
+								        borderColor: "rgba(255,182,0,1)",
+								        borderCapStyle: 'butt',
+								        borderDash: [],
+								        borderDashOffset: 0.0,
+								        borderJoinStyle: 'miter',
+								        pointBorderColor: "rgba(255,182,0,1)",
+								        pointBackgroundColor: "#fff",
+								        pointBorderWidth: 1,
+								        pointHoverRadius: 5,
+								        pointHoverBackgroundColor: "rgba(255,182,0,1)",
+								        pointHoverBorderColor: "rgba(255,182,0,1)",
+								        pointHoverBorderWidth: 2,
+								        pointRadius: 1,
+								        pointHitRadius: 10,
+								        data: [
+								        	{% for week in report %}
+												{{week.date.goalCompletionsAll}},
+											{% endfor %}
+								        ],
+								        spanGaps: false,
+							        },
+							        {
+								        label: "Besökare",
+								        fill: false,
+								        lineTension: 0.1,
+								        backgroundColor: "rgba(28,168,221,.4)",
+								        borderColor: "rgba(28,168,221,.4)",
+								        borderCapStyle: 'butt',
+								        borderDash: [],
+								        borderDashOffset: 0.0,
+								        borderJoinStyle: 'miter',
+								        pointBorderColor: "rgba(28,168,221,.4)",
+								        pointBackgroundColor: "#fff",
+								        pointBorderWidth: 1,
+								        pointHoverRadius: 5,
+								        pointHoverBackgroundColor: "rgba(28,168,221,.4)",
+								        pointHoverBorderColor: "rgba(28,168,221,.4)",
+								        pointHoverBorderWidth: 2,
+								        pointRadius: 1,
+								        pointHitRadius: 10,
+								        data: [
+								        	{% for week in report %}
+												{{week.date.users}},
+											{% endfor %}
+								        ],
+								        spanGaps: false,
+							        }
+							    ]
+							};
+							var report_options_{{key}} = [];
+							var report_chart_{{key}} = new Chart(report_{{key}}, {
+							    type: 'line',
+							    data: report_data_{{key}},
+							    options: report_options_{{key}}
 							});
 
 						</script>

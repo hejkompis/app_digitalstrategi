@@ -14,8 +14,7 @@
 			$this->id 				= $data['id'];
 			$this->name 			= $data['name'];
 			$this->start_date 		= $data['start_date'];
-			$this->end_date 		= $data['end_date'] !== null ? $data['end_date'] : strtotime('yesterday');
-			$this->end_date 		= $this->end_date > strtotime('yesterday') ? strtotime('yesterday'): $this->end_date;
+			$this->end_date 		= $data['end_date'];
 			$this->report_from		= $data['report_from'];
 			$this->report_to		= $data['report_to'];
 			$this->conversion_rate 	= $data['conversion_rate'];
@@ -81,9 +80,6 @@
 				$d = date('w', $report_from);
 			} while ($d != $report_from_day);
 
-			echo date('Y-m-d', $report_from).' - '.date('Y-m-d', $report_to).'<br />';
-
-
 			// just to get rid of unneccessary questions in url
 			if(isset($clean_input['compare_from']) && $clean_input['compare_from'] == '') {
 				header('Location: /project/show/?id='.$clean_input['id'].'&from='.$clean_input['from'].'&to='.$clean_input['to']);
@@ -118,6 +114,18 @@
 
 			$accounts 		= self::get_project_accounts($project->id);
 			$accounts 		= Account::filter_account_data($accounts, $from, $to);
+
+			$reports = self::get_project_accounts($project->id);
+			$report_start_date 	= $project->start_date;
+			if($project->end_date >= strtotime('today') || $project->end_date === NULL) {
+				$report_end_date = strtotime('yesterday');
+			} 
+			else {
+				$report_end_date = $project->end_date;
+			}
+			$reports = Account::filter_account_data($reports, $report_start_date, $report_end_date);
+			$report_weeks = Account::get_report_weeks($reports, $report_from_day, $report_to_day);
+			$reports = Account::get_data_in_reports($reports, $report_from_day, $report_to_day);	
 
 			$total_by_day	= Account::get_total_by_day($accounts);
 			$total_summary	= Account::get_total_summary($accounts);
@@ -158,7 +166,9 @@
 				'comparison_summary' 	=> $comparison_total_summary,
 				'compare_from'			=> $compare_from,
 				'compare_to' 			=> $compare_to,
-				'comparison_dates' 		=> $comparison_dates
+				'comparison_dates' 		=> $comparison_dates,
+				'reports'				=> $reports,
+				'report_weeks'			=> $report_weeks
 			];
 
 			return $output;

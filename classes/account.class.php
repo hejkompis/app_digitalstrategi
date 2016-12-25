@@ -448,6 +448,121 @@
 			return $summary;
 		}
 
+		public static function get_total_data_in_reports($accounts, $report_from, $report_to) {
+
+			$reports = [];
+			$week = 0;
+
+			foreach($accounts as $account) {
+				foreach($account->data as $date => $dimensions) {
+
+					$day_no = date('w', strtotime($date));
+					$demo_w = date('W', strtotime($date));
+
+					if($week == 0) {
+						$week = date('W', strtotime($date));	
+					}
+					elseif($day_no == $report_from && $report_from <= 4 && $report_from != 0) {
+						$week = date('W', strtotime($date));
+					}
+					elseif(($day_no == $report_from && $report_from > 4) || ($day_no == $report_from && $report_from == 0)) {
+						if($report_from == 0) { $report_from = 7; }
+						$next_monday = strtotime($date)+(60*60*24*(8-$report_from));
+						$week = date('W', $next_monday);
+					}
+
+					foreach($dimensions as $dimension => $metrics) {
+						foreach($metrics as $metric => $value) {
+							if(!isset($reports[$week][$dimension][$metric])) {
+								$reports[$week][$dimension][$metric] = 0;
+							}
+							$reports[$week][$dimension][$metric] += $value;
+ 						}
+					}
+				}
+			}
+
+			ksort($reports);
+
+			return $reports;
+		}
+
+		public static function get_data_in_reports($accounts, $report_from, $report_to) {
+
+			$reports = [];
+
+			foreach($accounts as $key => $account) {
+				$week = 0;
+				foreach($account->data as $date => $dimensions) {
+
+					$day_no = date('w', strtotime($date));
+					$demo_w = date('W', strtotime($date));
+
+					if($week == 0) {
+						$week = date('W', strtotime($date));	
+					}
+					elseif($day_no == $report_from && $report_from <= 4 && $report_from != 0) {
+						$week = date('W', strtotime($date));
+					}
+					elseif(($day_no == $report_from && $report_from > 4) || ($day_no == $report_from && $report_from == 0)) {
+						if($report_from == 0) { $report_from = 7; }
+						$next_monday = strtotime($date)+(60*60*24*(8-$report_from));
+						$week = date('W', $next_monday);
+					}
+
+					foreach($dimensions as $dimension => $metrics) {
+						foreach($metrics as $metric => $value) {
+							if(!isset($reports[$key][$week][$dimension][$metric])) {
+								$reports[$key][$week][$dimension][$metric] = 0;
+							}
+							$reports[$key][$week][$dimension][$metric] += $value;
+ 						}
+					}
+				}
+			}
+
+			foreach($reports as $report) {
+				ksort($reports);
+			}
+
+			// echo '<pre>';
+			//  	print_r($reports);
+			// echo '</pre>';
+			
+			// die;
+
+			return $reports;
+		}
+
+		public static function get_report_weeks($accounts, $report_from, $report_to) {
+
+			$weeks = [];
+			$week = 0;
+
+			$account_id = min(array_keys($accounts));
+			foreach($accounts[$account_id]->data as $date => $dimensions) {
+
+				$day_no = date('w', strtotime($date));
+				$demo_w = date('W', strtotime($date));
+
+				if($week == 0) {
+					$week = date('W', strtotime($date));	
+				}
+				elseif($day_no == $report_from && $report_from <= 4 && $report_from != 0) {
+					$week = date('W', strtotime($date));
+				}
+				elseif(($day_no == $report_from && $report_from > 4) || ($day_no == $report_from && $report_from == 0)) {
+					if($report_from == 0) { $report_from = 7; }
+					$next_monday = strtotime($date)+(60*60*24*(8-$report_from));
+					$week = date('W', $next_monday);
+				}
+
+				$weeks[$week] = $week;
+			}
+
+			return $weeks;
+		}
+
 		public static function json_changestatus($input) {
 
 			$clean_input = DB::clean($input);
