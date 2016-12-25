@@ -4,7 +4,14 @@
 
 		<div class="col-xs-12">
 
-			<h2>Nytt projekt{% if client %} i {{client.name}}{% endif %}</h2>
+			<div class="dashhead">
+				
+				<div class="dashhead-titles">
+					{% if client %}<h6 class="dashhead-subtitle"><a href="/client/show/?id={{project.client.id}}">{{client.name}}</a></h6>{% endif %}
+					<h3 class="dashhead-title">Nytt projekt</h3>
+				</div>
+
+			</div>
 
 			<form action="/project/save/" class="form" method="post">
 
@@ -21,7 +28,7 @@
 
 				</div>
 
-				{% if clients %}
+				{% if clients and not client %}
 
 					<div class="form-group m-b-md">
 
@@ -47,8 +54,54 @@
 						<label for="name">Datumspann för kampanj (lämna slutdatum tom för löpande kampanj)</label>
 						<div class="input-group input-daterange">
 							<input type="text" name="start_date" class="form-control" value="{{"now"|date("Y-m-d")}}">
-							<span class="input-group-addon">to</span>
+							<span class="input-group-addon">till</span>
 							<input type="text" name="end_date" class="form-control" value="">
+						</div>
+
+					</div>
+
+				</div>
+
+				<div class="form-group m-b-md">
+
+					<div class="hr-divider m-b">
+						<h3 class="hr-divider-content hr-divider-heading">
+							Rapportperiod
+						</h3>
+					</div>
+
+					<div class="row">
+
+						<div class="col-xs-12 col-sm-6">
+
+							<select name="report_from" id="report_from" class="form-control">
+
+								<option value="1">Måndag</option>
+								<option value="2">Tisdag</option>
+								<option value="3">Onsdag</option>
+								<option value="4">Torsdag</option>
+								<option value="5">Fredag</option>
+								<option value="6">Lördag</option>
+								<option value="0">Söndag</option>
+
+							</select>
+
+						</div>
+
+						<div class="col-xs-12 col-sm-6">
+
+							<select name="report_to" id="report_to" class="form-control">
+
+								<option value="1">Måndag</option>
+								<option value="2">Tisdag</option>
+								<option value="3">Onsdag</option>
+								<option value="4">Torsdag</option>
+								<option value="5">Fredag</option>
+								<option value="6">Lördag</option>
+								<option value="0">Söndag</option>
+
+							</select>
+
 						</div>
 
 					</div>
@@ -58,6 +111,12 @@
 				<div class="form-group">
 
 					{% if accounts %}
+
+						<div class="hr-divider m-b">
+							<h3 class="hr-divider-content hr-divider-heading">
+								Konton
+							</h3>
+						</div>
 
 						{% for account in accounts %}
 

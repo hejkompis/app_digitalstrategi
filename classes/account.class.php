@@ -469,4 +469,21 @@
 
 		}
 
+		public static function json_store_data_for_all_connected_views() {
+
+			$views = self::get_connected_views();
+			$count = 0;
+
+			foreach($views as $view) {
+				$clean_view_id = DB::clean($view['view_id']);
+				self::store_data($clean_view_id);
+				$count++;
+			}
+
+			$output['status'] = $count == count($views) ? 1 : 0;
+
+			echo json_encode($output); die;
+
+		}
+
 	}

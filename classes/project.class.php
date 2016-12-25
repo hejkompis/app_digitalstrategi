@@ -16,6 +16,8 @@
 			$this->start_date 		= $data['start_date'];
 			$this->end_date 		= $data['end_date'] !== null ? $data['end_date'] : strtotime('yesterday');
 			$this->end_date 		= $this->end_date > strtotime('yesterday') ? strtotime('yesterday'): $this->end_date;
+			$this->report_from		= $data['report_from'];
+			$this->report_to		= $data['report_to'];
 			$this->conversion_rate 	= $data['conversion_rate'];
 			$this->online 			= $data['online'];
 			$this->client 			= new Client($data['client_id']);
@@ -43,6 +45,45 @@
 			$compare_from = false;
 			$compare_to = false;
 
+			$report_from_day = $project->report_from;
+			$report_to_day = $project->report_to;
+			$today = strtotime('today');
+			$today_is_day = date('w', $today);
+
+			switch ($report_to_day) {
+				case 0:
+					$report_to_string = 'Last Sunday';
+					break;
+				case 1:
+					$report_to_string = 'Last Monday';
+					break;
+				case 2:
+					$report_to_string = 'Last Tuesday';
+					break;
+				case 3:
+					$report_to_string = 'Last Wednesday';
+					break;
+				case 4:
+			        $report_to_string = 'Last Thursday';
+			        break;
+			    case 5:
+			        $report_to_string = 'Last Friday';
+			        break;
+			    case 6:
+			        $report_to_string = 'Last Saturday';
+			        break;
+			}
+
+			$report_to = strtotime($report_to_string);
+			$report_from = $report_to;
+			do {
+				$report_from -= (60*60*24);
+				$d = date('w', $report_from);
+			} while ($d != $report_from_day);
+
+			echo date('Y-m-d', $report_from).' - '.date('Y-m-d', $report_to).'<br />';
+
+
 			// just to get rid of unneccessary questions in url
 			if(isset($clean_input['compare_from']) && $clean_input['compare_from'] == '') {
 				header('Location: /project/show/?id='.$clean_input['id'].'&from='.$clean_input['from'].'&to='.$clean_input['to']);
@@ -60,15 +101,13 @@
 			}
 
 			//
-			$from = isset($clean_input['from']) ? strtotime($clean_input['from']) : $project->start_date;
+			$from = isset($clean_input['from']) ? strtotime($clean_input['from']) : $report_from;
 
 			//
-			$to = $project->end_date;
-			if($to > time() || $to === NULL) {
-				$to = strtotime('yesterday');
-			}
 			if(isset($clean_input['to'])) {
 				$to = strtotime($clean_input['to']);
+			} else {
+				$to = $report_to;
 			}
 
 			//
@@ -237,7 +276,7 @@
 			$start_date = $clean_input['start_date'] != '' ? strtotime($clean_input['start_date']) : strtotime(date('Y-m-d'));
 			$end_date = $clean_input['end_date'] != '' ? strtotime($clean_input['end_date']) : 'NULL';
 
-			$sql = "INSERT INTO projects (name, client_id, start_date, end_date, conversion_rate) VALUES (
+			$sql = "INSERT INTO projects (name, client_id, start_date, end_date, report_from, report_to, conversion_rate) VALUES (
 				'".$clean_input['name']."', 
 				".$clean_input['client_id'].",
 				".$start_date.",
@@ -275,6 +314,8 @@
 			client_id = '".$clean_input['client_id']."',
 			start_date = ".$start_date.",
 			end_date = ".$end_date.",
+			report_from = ".$clean_input['report_from'].",
+			report_to = ".$clean_input['report_to'].",
 			conversion_rate = ".$clean_input['conversion_rate']."
 			WHERE id = ".$clean_input['id'];
 
