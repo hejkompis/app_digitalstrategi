@@ -139,6 +139,31 @@
 
 				<div class="form-group">
 
+					{% if dimensions %}
+
+						<div class="hr-divider m-b">
+							<h3 class="hr-divider-content hr-divider-heading">
+								Konton
+							</h3>
+						</div>
+
+						{% for dimension in dimensions %}
+
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" name="project_has_dimensions[]" value="{{dimension.id}}" />
+										{{dimension.name}}
+									</label>
+								</div>
+
+						{% endfor %}					
+
+					{% endif %}
+
+				</div>
+
+				<div class="form-group">
+
 					<label for="conversion_rate">Önskad konverteringratio</label>
 					<input type="number" class="form-control" name="conversion_rate" id="conversion_rate" value="{{project.conversion_rate}}" min="0" max="100" placeholder="" />
 

@@ -167,12 +167,13 @@
 
 			$sql_addon = '';
 
-			$sql = "SELECT id FROM accounts ORDER BY id DESC";
+			$sql = "SELECT id, name FROM accounts ORDER BY id DESC";
 			$data = DB::query($sql);
 
 			$output = [];
-			foreach($data as $value) {
-				$output[] = new Account($value['id']);
+			foreach($data as $key => $value) {
+				$output[$key]['id'] = $value['id'];
+				$output[$key]['name'] = $value['name'];
 			}
 
 			return $output;
@@ -183,33 +184,35 @@
 
 			$clean_view_id = DB::clean($view_id);
 
-			$dimensions = [
-				//'date',
-				'source',
-				'medium',
-				'sourceMedium',
-				'campaign',
-				'adMatchedQuery',
-				'searchKeyword',
-				'referralPath',
-				'fullReferrer',
-				'socialNetwork',
-				'adPlacementDomain',
-				'browser',
-				'browserVersion',
-				'operatingSystem',
-				'mobileDeviceInfo',
-				'mobileDeviceBranding',
-				'deviceCategory',
-				'country',
-				'region',
-				'metro',
-				'city',
-				'latitude',
-				'longitude',
-				'userAgeBracket',
-				'userGender'
-			];
+			// $dimensions = [
+			// 	//'date',
+			// 	'source',
+			// 	'medium',
+			// 	'sourceMedium',
+			// 	'campaign',
+			// 	'adMatchedQuery',
+			// 	'searchKeyword',
+			// 	'referralPath',
+			// 	'fullReferrer',
+			// 	'socialNetwork',
+			// 	'adPlacementDomain',
+			// 	'browser',
+			// 	//'browserVersion',
+			// 	'operatingSystem',
+			// 	'mobileDeviceInfo',
+			// 	'mobileDeviceBranding',
+			// 	'deviceCategory',
+			// 	'country',
+			// 	'region',
+			// 	//'metro',
+			// 	'city',
+			// 	//'latitude',
+			// 	//'longitude',
+			// 	'userAgeBracket',
+			// 	'userGender'
+			// ];
+			
+			$dimensions = Dimension::get_all();
 
 			$metrics = [
 				'users',
@@ -223,45 +226,45 @@
 
 			$today = date('Y-m-d', time());
 
-			$sql = "SELECT stored_date FROM account_data WHERE view_id = $clean_view_id AND stored_date = '$today'";
-			$data = DB::query($sql);
-
 			$ga_to_store = [];
 
-			if(count($data) == 0) {
+			$ga = new gapi(gapi_email, gapi_pass);
 
-				$ga = new gapi(gapi_email, gapi_pass);
+			$sql = "DELETE FROM account_data WHERE view_id = $clean_view_id AND stored_date < '$today'";
+			DB::query($sql);
 
-				$sql = "DELETE FROM account_data WHERE view_id = $clean_view_id AND stored_date < '$today'";
-				DB::query($sql);
+			// just date
+			$ga_object = $ga->requestReportData($clean_view_id, array('date'), $metrics);
 
-				// just date
-				$ga_object = $ga->requestReportData($clean_view_id, array('date'), $metrics);
+			foreach($ga_object as $o_key => $value) {
+				$ga_to_store['date'][$o_key]['dimensions'] = serialize($value->getDimensions());
+				$ga_to_store['date'][$o_key]['metrics'] = serialize($value->getMetrics());
+				$ga_to_store['date'][$o_key]['data_date'] = null !== $value->getDate() ? strtotime($value->getDate()) : '';
+			}
 
-				foreach($ga_object as $key => $value) {
-					$ga_to_store[$key]['dimensions'] = serialize($value->getDimensions());
-					$ga_to_store[$key]['metrics'] = serialize($value->getMetrics());
-					$ga_to_store[$key]['data_date'] = null !== $value->getDate() ? strtotime($value->getDate()) : '';
-				}
+			// date combined with all other dimensions
+			foreach($dimensions as $d_key => $dimension) {
+				$ga_object = $ga->requestReportData($clean_view_id, array($dimension->dimension_name,'date'), $metrics);
+				if(count($ga_object) > 0) {
 
-				// date combined with all other dimensions
-				foreach($dimensions as $dimension) {
-					$ga_object = $ga->requestReportData($clean_view_id, array($dimension,'date'), $metrics);
-					if(count($ga_object) > 0) {
-
-						foreach($ga_object as $key => $value) {
-							$ga_to_store[$key]['dimensions'] = serialize($value->getDimensions());
-							$ga_to_store[$key]['metrics'] = serialize($value->getMetrics());
-							$ga_to_store[$key]['data_date'] = null !== $value->getDate() ? strtotime($value->getDate()) : '';
-						}
-
+					foreach($ga_object as $o_key => $value) {
+						$ga_to_store[$d_key][$o_key]['dimensions'] = serialize($value->getDimensions());
+						$ga_to_store[$d_key][$o_key]['metrics'] = serialize($value->getMetrics());
+						$ga_to_store[$d_key][$o_key]['data_date'] = null !== $value->getDate() ? strtotime($value->getDate()) : '';
 					}
 
 				}
+				unset($ga_object);
+			}
 
-				$timestamp = time();
+			$timestamp = time();
 
-				foreach($ga_to_store as $value) {
+			$sql = "SELECT stored_date FROM account_data WHERE view_id = $clean_view_id";
+			$data = DB::query($sql);
+
+			foreach($ga_to_store as $dimensions) {
+
+				foreach($dimensions as $value) {
 
 					$sql = "INSERT INTO account_data (view_id, dimensions, metrics, data_date, stored_date, timestamp) VALUES (
 						'".$clean_view_id."', 
@@ -299,15 +302,25 @@
 				if(count($dimensions) == 1) {
 					$dimension = key($dimensions);
 					$date = $dimensions['date'];
+					$dimension_value = false;
 				}
 				else {
 					$date = $dimensions['date'];
 					unset($dimensions['date']);
 					reset($dimensions);
 					$dimension = key($dimensions);
+					$dimension_value = $dimensions[$dimension];
+					//echo $date.' - '.$dimension_value.'<br />';
 				}
 
-				$output[$date][$dimension] = unserialize($value['metrics']);
+				if($dimension_value) {
+					$output[$date][$dimension][$dimension_value] = unserialize($value['metrics']);
+				}
+				else {
+					$output[$date][$dimension] = unserialize($value['metrics']);
+				}
+
+				$dimension_value = false;
 				//$output[$dimension][$date] = unserialize($value['metrics']);
 				//ksort($output[$dimension]);
 			}
@@ -390,11 +403,13 @@
 			$str_to 	= date('Ymd', $to);
 
 			foreach($accounts as $account) {
+
 				foreach($account->data as $date => $metrics) {
 					if($date < $str_from || $date > $str_to) {
 						unset($account->data[$date]);
 					}
 				}
+
 			}
 
 			return $accounts;
@@ -411,7 +426,9 @@
 							if(!isset($total[$date][$dimension][$metric])) {
 								$total[$date][$dimension][$metric] = 0;
 							}
-							$total[$date][$dimension][$metric] += $value;
+							if(!is_array($value)) {
+								$total[$date][$dimension][$metric] += $value;
+							}
  						}
 					}
 				}
@@ -432,18 +449,79 @@
 
 			$summary = [];
 
-			foreach($accounts as $account) {
+			// function cmp_users($a, $b) {
+			// 	return $b['users'] - $a['users'];
+			// }
+
+			foreach($accounts as $account_key => $account) {
+
 				foreach($account->data as $date => $dimensions) {
 					foreach($dimensions as $dimension => $metrics) {
 						foreach($metrics as $metric => $value) {
-							if(!isset($summary[$dimension][$metric])) {
-								$summary[$dimension][$metric] = 0;
+
+							if(!is_array($value)) {
+								// totalt
+								if(!isset($summary[$dimension]['summary'][$metric])) {
+									$summary[$dimension]['summary'][$metric] = 0;
+								}
+								// per bolag
+								if(!isset($summary[$dimension][$account_key]['summary'][$metric])) {
+									$summary[$dimension][$account_key]['summary'][$metric] = 0;
+								}
+								if($dimension == 'date') {
+									// totalt
+									$summary[$dimension]['summary'][$metric] += $value;
+									// per bolag
+									$summary[$dimension][$account_key]['summary'][$metric] += $value;
+								}
 							}
-							$summary[$dimension][$metric] += $value;
+							else {
+								// totalt
+								if(!isset($summary[$dimension]['variations'][$metric])) {
+									$summary[$dimension]['variations'][$metric] = [];
+								}
+								// per bolag
+								if(!isset($summary[$dimension][$account_key]['variations'][$metric])) {
+									$summary[$dimension][$account_key]['variations'][$metric] = [];
+								}
+								foreach($value as $key => $val2) {
+									// totalt
+									if(!isset($summary[$dimension]['summary'][$key])) {
+										$summary[$dimension]['summary'][$key] = 0;
+									}
+									// per bolag
+									if(!isset($summary[$dimension][$account_key]['summary'][$key])) {
+										$summary[$dimension][$account_key]['summary'][$key] = 0;
+									}
+									// totalt
+									if(!isset($summary[$dimension]['variations'][$metric][$key])) {
+										$summary[$dimension]['variations'][$metric][$key] = 0;
+									}
+									// per bolag
+									if(!isset($summary[$dimension][$account_key]['variations'][$metric][$key])) {
+										$summary[$dimension][$account_key]['variations'][$metric][$key] = 0;
+									}
+									// totalt
+									$summary[$dimension]['summary'][$key] += $val2;
+									$summary[$dimension]['variations'][$metric][$key] += $val2;
+									// per bolag
+									$summary[$dimension][$account_key]['summary'][$key] += $val2;
+									$summary[$dimension][$account_key]['variations'][$metric][$key] += $val2;
+								}
+							}
+							// if(isset($summary[$dimension]['variations'][$metric]) && is_array($summary[$dimension]['variations'][$metric])) {
+							// 	usort($summary[$dimension]['variations'], "cmp_users");
+							// }
  						}
 					}
 				}
 			}
+
+			// echo '<pre>';
+			// 	print_r($summary);
+			// echo '</pre>';
+
+			// die;
 
 			return $summary;
 		}
@@ -515,7 +593,9 @@
 							if(!isset($reports[$key][$week][$dimension][$metric])) {
 								$reports[$key][$week][$dimension][$metric] = 0;
 							}
-							$reports[$key][$week][$dimension][$metric] += $value;
+							if(!is_array($value)) { 
+								$reports[$key][$week][$dimension][$metric] += $value;
+							}
  						}
 					}
 				}

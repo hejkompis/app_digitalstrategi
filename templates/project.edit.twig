@@ -160,6 +160,35 @@
 
 					{% endif %}
 
+				</div>
+
+				<div class="form-group">
+
+					{% if dimensions %}
+
+						<div class="hr-divider m-b">
+							<h3 class="hr-divider-content hr-divider-heading">
+								Konton
+							</h3>
+						</div>
+
+						{% for dimension in dimensions %}
+
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" name="project_has_dimensions[]" value="{{dimension.id}}" 
+
+										{% if dimension.id in project_has_dimensions %}
+											checked="checked"
+										{% endif %}
+										>
+										{{dimension.name}}
+									</label>
+								</div>
+
+						{% endfor %}					
+
+					{% endif %}
 
 				</div>
 

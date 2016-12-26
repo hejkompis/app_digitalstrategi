@@ -1,0 +1,121 @@
+{% if not current_user.admin %}
+	<script>window.location.href = "/"</script>
+{% endif %}
+
+<div class="container">
+
+	<div class="row m-b-md">
+
+		<div class="col-xs-12">
+
+			<div class="dashhead">
+				
+				<div class="dashhead-titles">
+					<h6 class="dashhead-subtitle">Inställningar</h6>
+					<h2 class="dashhead-title">Dimensioner</h2>
+				</div>
+
+			</div>
+
+		</div>
+
+		<div class="col-xs-12 text-right">
+
+			<a class="btn btn-primary-outline p-x" type="button" href="/dimension/add/">Lägg till</a>
+		
+		</div>
+
+	</div>
+
+	<div class="row">
+
+		<div class="col-xs-12">			
+
+			<div class="table-responsive">
+				
+				<table class="table">
+
+					{% if dimensions %}
+
+						<thead>
+
+							<tr>
+
+								<th>Namn</th>
+								<th>Dimension</th>
+								<th>Radera</th>
+								<th>Redigera</th>
+								{# <th>Aktiv</th> #}
+
+							</tr>
+
+						</thead>
+						<tbody>
+
+							{% for dimension in dimensions %}
+
+								<tr>
+									
+									<td>{{dimension.name}}</td>
+									<td>{{dimension.dimension_name}}</td>
+									<td>
+										<a href="/dimension/delete/?id={{dimension.id}}" data-type="confirm" data-message="Radera projekt?"><i class="fa fa-trash-o fa-fw" aria-hidden="true"></i></a>
+									</td>
+									<td>
+										<a href="/dimension/edit/?id={{dimension.id}}"><i class="fa fa-pencil-square-o fa-fw" aria-hidden="true"></i></a>
+									</td>
+									{# <td>
+										<a href="#" data-type="json-changestatus" data-href="/dimension/json_changestatus/?id={{dimension.id}}">
+
+										{% if dimension.online %}
+
+											<i class="fa fa-check-square-o fa-fw"></i>
+
+										{% else %}
+
+											<i class="fa fa-square-o fa-fw"></i>
+
+										{% endif %}
+
+										</a>
+									</td> #}
+
+								</tr>
+
+							{% endfor %}
+
+						</tbody>
+
+					{% else %}
+
+						<thead>
+
+							<tr>
+
+								<th></th>
+
+							</tr>
+
+						</thead>
+
+						<tbody>
+
+							<tr>
+									
+								<td>Inga dimensioner</td>
+
+							</tr>
+
+						</tbody>
+
+					{% endif %}
+
+				</table>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</div>

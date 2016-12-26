@@ -1,0 +1,48 @@
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-xs-12">
+
+			<div class="dashhead">
+				
+				<div class="dashhead-titles">
+					<h6 class="dashhead-subtitle"><a href="/client/show/?id={{project.client.id}}">Dimensioner</a></h6>
+					<h2 class="dashhead-title">Redigera</h2>
+				</div>
+
+			</div>
+
+			<form action="/dimension/update/" class="form" method="post">
+
+				<input type="hidden" name="redirect_url" id="redirect_url" value="{{http_referer}}" />
+
+				<input type="hidden" name="id" id="id" value="{{dimension.id}}" />
+
+				<div class="form-group">
+
+					<label for="name">Dimension</label>
+					<input type="text" class="form-control" name="dimension_name" id="dimension_name" value="{{dimension.dimension_name}}" placeholder="" />
+
+				</div>
+
+				<div class="form-group">
+
+					<label for="name">Namn</label>
+					<input type="text" class="form-control" name="name" id="name" value="{{dimension.name}}" placeholder="" />
+
+				</div>
+
+				<div class="form-group">
+
+					<input type="submit" class="btn btn-primary" value="Uppdatera" />
+
+				</div>
+
+			</form>
+
+		</div>
+
+	</div>
+
+</div>

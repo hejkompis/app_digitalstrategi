@@ -1,0 +1,46 @@
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-xs-12">
+
+			<div class="dashhead">
+				
+				<div class="dashhead-titles">
+					<h6 class="dashhead-subtitle"><a href="/client/show/?id={{project.client.id}}">Dimensioner</a></h6>
+					<h2 class="dashhead-title">Lägg till ny</h2>
+				</div>
+
+			</div>
+
+			<form action="/dimension/save/" class="form" method="post">
+
+				<input type="hidden" name="redirect_url" id="redirect_url" value="{{http_referer}}" />
+
+				<div class="form-group">
+
+					<label for="name">Dimension</label>
+					<input type="text" class="form-control req" name="dimension_name" id="dimension_name" placeholder="" />
+
+				</div>
+
+				<div class="form-group">
+
+					<label for="name">Namn</label>
+					<input type="text" class="form-control req" name="name" id="name" placeholder="" />
+
+				</div>
+
+				<div class="form-group">
+
+					<input type="submit" class="btn btn-primary p-x" value="Spara" />
+
+				</div>
+
+			</form>
+
+		</div>
+
+	</div>
+
+</div>

@@ -41,9 +41,11 @@
 			$clean_input	= DB::clean($input);
 			$project 		= new Project($clean_input['id']);
 
+			// Vi sätter compare-värdena till false så de finns med från början
 			$compare_from = false;
 			$compare_to = false;
 
+			// report är veckorna som listas
 			$report_from_day = $project->report_from;
 			$report_to_day = $project->report_to;
 			$today = strtotime('today');
@@ -80,11 +82,12 @@
 				$d = date('w', $report_from);
 			} while ($d != $report_from_day);
 
-			// just to get rid of unneccessary questions in url
+			// finns inga värden att jämföra med tar vi bort strängarna för compare från url:en
 			if(isset($clean_input['compare_from']) && $clean_input['compare_from'] == '') {
 				header('Location: /project/show/?id='.$clean_input['id'].'&from='.$clean_input['from'].'&to='.$clean_input['to']);
 				die;
 			}
+			// annars gör vi om dem till unix-timestamp
 			elseif(isset($clean_input['compare_from']) && $clean_input['compare_from'] != '') {
 
 				$compare_from = strtotime($clean_input['compare_from']);
@@ -92,29 +95,35 @@
 				$comparison = true;
 
 			}
+			// alternativt sätter comparison till false
 			else {
 				$comparison = false;
 			}
 
-			//
+			// sätter ett värde att börja visa data från
 			$from = isset($clean_input['from']) ? strtotime($clean_input['from']) : $report_from;
 
-			//
+			// sätter ett värde att sluta visa data på
 			if(isset($clean_input['to'])) {
 				$to = strtotime($clean_input['to']);
 			} else {
 				$to = $report_to;
 			}
 
-			//
+			// tar reda på alla datum mellan from och to
 			$dates = [];
 			for($i = $from; $i <= $to; $i+=(60*60*24)) {
 				$dates[] = $i;
 			}
 
+			// dimensioner
+			$dimensions 		= self::get_project_dimensions($project->id);
+
+			// hämtar in alla konton kopplade till projektet och filtrerar på datum
 			$accounts 		= self::get_project_accounts($project->id);
 			$accounts 		= Account::filter_account_data($accounts, $from, $to);
 
+			// skapar rapportperioder baserat på veckor
 			$reports = self::get_project_accounts($project->id);
 			$report_start_date 	= $project->start_date;
 			if($project->end_date >= strtotime('today') || $project->end_date === NULL) {
@@ -149,8 +158,9 @@
 			}
 			
 			// echo '<pre>';
-			// print_r($comparison);
+			// print_r($accounts);
 			// echo '</pre>';
+			// die;
 
 			$output = [
 				'title'					=> $project->name.' - '.$project->client->name,
@@ -168,7 +178,8 @@
 				'compare_to' 			=> $compare_to,
 				'comparison_dates' 		=> $comparison_dates,
 				'reports'				=> $reports,
-				'report_weeks'			=> $report_weeks
+				'report_weeks'			=> $report_weeks,
+				'dimensions'			=> $dimensions
 			];
 
 			return $output;
@@ -214,7 +225,8 @@
 				'title'			=> 'Nytt projekt',
 				'client'		=> $client,
 				'accounts' 		=> Account::get_all(),
-				'clients' 		=> $clients
+				'clients' 		=> $clients,
+				'dimensions' 	=> Dimension::get_all()
 			];
 
 			return $output;
@@ -231,8 +243,9 @@
 				'project'				=> $project,
 				'project_has_accounts' 	=> self::project_has_accounts($clean_input['id']),
 				'accounts' 				=> Account::get_all(),
-				'clients'				=> $clients
-
+				'clients'				=> $clients,
+				'dimensions' 			=> Dimension::get_all(),
+				'project_has_dimensions' 	=> self::project_has_dimensions($clean_input['id']),
 			];
 
 			return $output;
@@ -303,6 +316,14 @@
 				DB::query($sql);
 			}
 
+			foreach($clean_input['project_has_dimensions'] as $dimension_id) {
+				$sql = "INSERT INTO project_has_dimensions (project_id, dimension_id) VALUES (
+					".$id.", 
+					".$dimension_id."
+				)";
+				DB::query($sql);
+			}
+
 			$output = [
 				'redirect_url' => $clean_input['redirect_url']
 			];
@@ -342,6 +363,17 @@
 				DB::query($sql);
 			}
 
+			$sql = "DELETE FROM project_has_dimensions WHERE project_id = ".$clean_input['id']."";
+			DB::query($sql);
+
+			foreach($clean_input['project_has_dimensions'] as $dimension_id) {
+				$sql = "INSERT INTO project_has_dimensions (project_id, dimension_id) VALUES (
+					".$clean_input['id'].", 
+					".$dimension_id."
+				)";
+				DB::query($sql);
+			}
+
 			$output = [
 			'redirect_url' => $clean_input['redirect_url']
 			];
@@ -359,6 +391,37 @@
 			DB::query($sql);
 
 			$output = ['redirect_url' => $input['http_referer']];
+
+			return $output;
+
+		}
+
+		public static function project_has_dimensions($project_id) {
+
+			$clean_project_id = DB::clean($project_id);
+
+			$sql = "SELECT dimension_id FROM project_has_dimensions WHERE project_id = ".$clean_project_id;
+			$data = DB::query($sql);
+
+			$output = [];
+			foreach($data as $value) {
+				$output[] = $value['dimension_id'];
+			}
+
+			return $output;
+
+		}
+
+		public static function get_project_dimensions($project_id) {
+
+			$clean_project_id = DB::clean($project_id);
+
+			$dimensions = self::project_has_dimensions($clean_project_id);
+
+			$output = [];
+			foreach($dimensions as $value) {
+				$output[] = new Dimension($value);
+			}
 
 			return $output;
 

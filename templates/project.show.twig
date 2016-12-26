@@ -246,58 +246,118 @@ $(document).ready(function() {
 
 			<div role="tabpanel" class="col-xs-12 tab-pane fade in active" id="total-summary">
 
-				<div class="col-xs-12 col-sm-6 col-md-4">
+				<div class="row">
 
-					<div class="statcard p-a-md">
-						<h3 class="statcard-number">
-							{{summary.date.users}}
-							{# <small class="delta-indicator delta-positive">5%</small> #}
-						</h3>
-						<span class="statcard-desc">Besökare under perioden</span>
+					<div class="col-xs-12 col-sm-6 col-md-4">
+
+						<div class="statcard p-a-md">
+							<h3 class="statcard-number">
+								{{summary.date.summary.users}}
+								{# <small class="delta-indicator delta-positive">5%</small> #}
+							</h3>
+							<span class="statcard-desc">Besökare under perioden</span>
+						</div>
+
+					</div>
+
+					<div class="col-xs-12 col-sm-6 col-md-4">
+
+						{% set actual_conversion_rate = ((summary.date.summary.goalCompletionsAll / summary.date.summary.users)*100)|round %}
+
+						{% if actual_conversion_rate >= project.conversion_rate %}
+
+							{% set success = true %}
+
+						{% else %}
+
+							{% set success = false %}
+
+						{% endif %}
+
+						<div class="statcard p-a-md">
+							<h3 class="statcard-number">
+								{{summary.date.summary.goalCompletionsAll}}
+								{% if success %}
+									<small class="delta-indicator delta-positive">{{actual_conversion_rate}}%</small>
+								{% else %}
+									<small class="delta-indicator delta-negative">{{actual_conversion_rate}}%</small>
+								{% endif %}
+							</h3>
+							<span class="statcard-desc">Konverteringar</span>
+						</div>
+
+					</div>
+
+					<div class="col-xs-12 col-sm-6 col-md-4">
+
+						{% set desired_conversion_rate = ((project.conversion_rate * summary.date.summary.users)/100)|round %}
+
+						<div class="statcard p-a-md">
+							<h3 class="statcard-number">
+								{{desired_conversion_rate}}
+							</h3>
+							<span class="statcard-desc">Önskat antal konverteringar ({{project.conversion_rate}}%)</span>
+						</div>
+
 					</div>
 
 				</div>
 
-				<div class="col-xs-12 col-sm-6 col-md-4">
+				{% for dimension_name, dimension_data in summary %}
 
-					{% set actual_conversion_rate = ((summary.date.goalCompletionsAll / summary.date.users)*100)|round %}
+					{% for dimension in dimensions %}
+						
+						{% if dimension.dimension_name == dimension_name %}
 
-					{% if actual_conversion_rate >= project.conversion_rate %}
+							<div class="row">
 
-						{% set success = true %}
+								<div class="col-xs-12 m-t m-b-md">
 
-					{% else %}
+									<div class="hr-divider">
+										<h3 class="hr-divider-content hr-divider-heading">
+											{{dimension.name}}
+										</h3>
+									</div>
 
-						{% set success = false %}
+								</div>
 
-					{% endif %}
+								<div class="col-xs-12 col-sm-6 col-md-4">
 
-					<div class="statcard p-a-md">
-						<h3 class="statcard-number">
-							{{summary.date.goalCompletionsAll}}
-							{% if success %}
-								<small class="delta-indicator delta-positive">{{actual_conversion_rate}}%</small>
-							{% else %}
-								<small class="delta-indicator delta-negative">{{actual_conversion_rate}}%</small>
-							{% endif %}
-						</h3>
-						<span class="statcard-desc">Konverteringar ({{project.conversion_rate}}% är målsiffran)</span>
-					</div>
+									<ul class="list-group">
 
-				</div>
+										{% for key, val in dimension_data.variations %}
+											<li class="list-group-item">
+												{{key}} {{val.users}} besökare
+												<span class="list-group-progress" style="width: {{((val.users/dimension_data.summary.users)*100)|round}}%;"></span>
+											</li>
+										{% endfor %}
 
-				<div class="col-xs-12 col-sm-6 col-md-4">
+									</ul>
 
-					{% set desired_conversion_rate = ((project.conversion_rate * summary.date.users)/100)|round %}
+								</div>
 
-					<div class="statcard p-a-md">
-						<h3 class="statcard-number">
-							{{desired_conversion_rate}}
-						</h3>
-						<span class="statcard-desc">Önskat antal konverteringar ({{project.conversion_rate}}%)</span>
-					</div>
+								<div class="col-xs-12 col-sm-6 col-md-4">
 
-				</div>
+									<ul class="list-group">
+
+									{% for key, val in dimension_data.variations %}
+										<li class="list-group-item">
+											{{key}} {{val.goalCompletionsAll}} leads
+											<span class="list-group-progress" style="width: {{((val.goalCompletionsAll/dimension_data.summary.goalCompletionsAll)*100)|round}}%;"></span>
+										</li>
+									{% endfor %}
+
+									</ul>
+
+								</div>
+
+							</div>
+
+						{% endif %}
+
+					{% endfor %}
+
+				{% endfor %}
 
 			</div>
 
