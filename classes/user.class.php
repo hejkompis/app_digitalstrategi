@@ -11,12 +11,14 @@
 			$sql = "SELECT id, name, company, email, admin, online FROM users WHERE id = ".$clean_id;
 			$data = DB::query($sql, true);
 
+			$user_has_access = self::user_has_access($data['id']);
 			$this->id 		= $data['id'];
 			$this->name 	= $data['name'];
 			$this->email 	= $data['email'];
 			$this->admin 	= $data['admin'];
 			$this->online 	= $data['online'];
 			$this->company 	= $data['company'];
+			$this->user_has_access = $user_has_access;
 
 		}
 
@@ -73,11 +75,28 @@
 
 			$clean_input 	= DB::clean($input);
 			$user 			= isset($clean_input['id']) ? new User($clean_input['id']) : User::is_logged_in();
+			$clients = Client::get_all();
 			
 			$output = [
-				'title' => 'Redigera användare',
-				'user' 	=> $user
+				'title' 			=> 'Redigera användare',
+				'user' 				=> $user,
+				'clients' 			=> $clients,
 			];
+			return $output;
+		}
+
+		private static function user_has_access($user_id) {
+
+			$clean_user_id = DB::clean($user_id);
+
+			$sql = "SELECT client_id FROM user_has_access WHERE user_id = $clean_user_id";
+			$data = DB::query($sql);
+
+			$output = [];
+			foreach($data as $client_id) {
+				$output[] = $client_id['client_id'];
+			}
+
 			return $output;
 		}
 
@@ -182,7 +201,15 @@
 				'".$scrambledPassword."', 
 				".$clean_input['admin']."
 			)";
-			$data = DB::query($sql);
+			$id = DB::query($sql);
+
+			foreach($clean_input['user_has_access'] as $client_id) {
+				$sql = "INSERT INTO user_has_access (user_id, client_id) VALUES (
+					".$id.", 
+					".$client_id."
+				)";
+				DB::query($sql);
+			}
 
 			$output = [
 			'redirect_url' => $clean_input['redirect_url']
@@ -216,6 +243,17 @@
 				password = '".$scrambledPassword."'
 				WHERE id = ".$clean_input['id'];
 
+				DB::query($sql);
+			}
+
+			$sql = "DELETE FROM user_has_access WHERE user_id = ".$clean_input['id']."";
+			DB::query($sql);
+
+			foreach($clean_input['user_has_access'] as $client_id) {
+				$sql = "INSERT INTO user_has_access (user_id, client_id) VALUES (
+					".$clean_input['id'].", 
+					".$client_id."
+				)";
 				DB::query($sql);
 			}
 

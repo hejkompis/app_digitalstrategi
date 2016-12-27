@@ -4,9 +4,16 @@
 
 		<div class="col-xs-12">
 
-			<h2>Redigera {{user.name}}</h2>
+			<div class="dashhead">
+				
+				<div class="dashhead-titles">
+					<h6 class="dashhead-subtitle">Redigera</h6>
+					<h3 class="dashhead-title">Användare</h3>
+				</div>
 
-			<form action="/user/update/" class="form form-horizontal" method="post">
+			</div>
+
+			<form action="/user/update/" class="form form" method="post">
 
 				<input type="hidden" name="redirect_url" id="redirect_url" value="{{http_referer}}" />
 
@@ -14,56 +21,73 @@
 
 				<div class="form-group">
 
-					<div class="col-xs-12">
-
-						<label for="name">Namn</label>
-						<input type="text" class="form-control req" name="name" id="name" value="{{user.name}}" placeholder="Ex: Elias Knudtzon" />
-
-					</div>
+					<label for="name">Namn</label>
+					<input type="text" class="form-control req" name="name" id="name" value="{{user.name}}" placeholder="Ex: Elias Knudtzon" />
 
 				</div>
 
 				<div class="form-group">
 
-					<div class="col-xs-12">
-
-						<label for="company">Företag</label>
-						<input type="text" class="form-control req" name="company" id="company" value="{{user.company}}" placeholder="Ex: Digiplay" />
-
-					</div>
+					<label for="company">Företag</label>
+					<input type="text" class="form-control req" name="company" id="company" value="{{user.company}}" placeholder="Ex: Digiplay" />
 
 				</div>
 
 				<div class="form-group">
 
-					<div class="col-xs-12">
-
-						<label for="email">E-post</label>
-						<input type="email" class="form-control req" name="email" id="email" value="{{user.email}}" placeholder="Ex: elias@digiplay.se" />
-
-					</div>
+					<label for="email">E-post</label>
+					<input type="email" class="form-control req" name="email" id="email" value="{{user.email}}" placeholder="Ex: elias@digiplay.se" />
 
 				</div>
 
 				<div class="form-group">
 
-					<div class="col-xs-12 col-sm-6">
+					<label for="password">Lösenord</label>
+					<input type="password" class="form-control" name="password" id="password" />
 
-						<label for="password">Lösenord</label>
-						<input type="password" class="form-control" name="password" id="password" />
+					<label for="password_repeat">Ange lösenord igen</label>
+					<input type="password" class="form-control" name="password_repeat" id="password_repeat" />
 
-					</div>
+				</div>
 
-					<div class="col-xs-12 col-sm-6">
+				<div class="form-group">
 
-						<label for="password_repeat">Ange lösenord igen</label>
-						<input type="password" class="form-control" name="password_repeat" id="password_repeat" />
+					{% if clients %}
 
-					</div>
+						<div class="hr-divider m-b">
+							<h3 class="hr-divider-content hr-divider-heading">
+								Konton
+							</h3>
+						</div>
+
+						{% for client in clients %}
+
+								<div class="checkbox custom-control custom-checkbox">
+									<label>
+										<input type="checkbox" name="user_has_access[]" value="{{client.id}}" 
+
+										{% if client.id in user.user_has_access %}
+											checked="checked"
+										{% endif %}
+										>
+										<span class="custom-control-indicator"></span>
+										{{client.name}}
+									</label>
+								</div>
+
+						{% endfor %}					
+
+					{% endif %}
 
 				</div>
 
 				{% if current_user.admin %}
+
+					<div class="hr-divider m-b">
+						<h3 class="hr-divider-content hr-divider-heading">
+							Rättigheter
+						</h3>
+					</div>
 
 					{% if current_user.id == user.id %}
 
@@ -95,23 +119,9 @@
 
 				{% endif %}
 
-				<div class="row hidden" id="req_info">
-				
-					<div class="col-xs-12">
-						
-						<strong><small>Fält markerade med * är obligatoriska<br /><br /></small></strong>
-						
-					</div>
-					
-				</div>
-
 				<div class="form-group">
 
-					<div class="col-xs-12">
-
-						<input type="submit" class="btn btn-primary" value="Uppdatera" />
-
-					</div>
+					<input type="submit" class="btn btn-primary m-t m-b-md" value="Uppdatera" />
 
 				</div>
 

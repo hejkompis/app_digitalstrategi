@@ -50,7 +50,8 @@
 
 								<tr>
 									
-									<td><a href="/client/show/?id={{client.id}}">{{client.name}}</a></td>
+									<!--<td><a href="/client/show/?id={{client.id}}">{{client.name}}</a></td>-->
+									<td>{{client.name}}</td>
 									{% if current_user.admin %}
 										<td>
 											<a href="/client/delete/?id={{client.id}}" data-type="confirm" data-message="Radera projekt?"><i class="fa fa-trash-o fa-fw" aria-hidden="true"></i></a>

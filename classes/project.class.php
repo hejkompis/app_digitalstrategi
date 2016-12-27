@@ -193,14 +193,11 @@
 			$clean_input 	= DB::clean($input);
 			$user 			= User::is_logged_in();
 
-			if($user->admin && isset($clean_input['id'])) {
-				$projects = self::get_all($clean_input['id']);
+			if($user->admin) {
+				$projects = self::get_all();
 			}
 			elseif($user->admin == false) {
-				$projects = self::get_all($user->id);
-			}
-			else {
-				$projects = self::get_all();
+				$projects = self::get_all($user->user_has_access);
 			}
 
 			$output = [
@@ -254,33 +251,20 @@
 			return $output;
 		}
 
-		public static function get_all($client_id = false) {
+		public static function get_all($client_array = false) {
 
 			$sql_addon = '';
 
-			/*if($client_id) {
-
-				// för icke-admin, typ, funkar nästan
-				$clean_client_id = DB::clean($client_id);
-
-				$sql = "SELECT id FROM clients WHERE user_id = ".$client_id;
-				$data = DB::query($sql);
+			if($client_array) {
 
 				$current_clients = "";
-				foreach($data as $client) {
-					$current_clients .= $client['id'].",";
+				foreach($client_array as $client_id) {
+					$current_clients .= $client_id.",";
 				}
 
 				$current_clients = trim($current_clients, ',');
 
 				$sql_addon = " WHERE client_id IN(".$current_clients.")";
-			}*/
-
-			if($client_id) {
-
-				// funkar ej om du ej är admin
-				$clean_client_id = DB::clean($client_id);
-				$sql_addon = " WHERE client_id = ".$clean_client_id;
 			}
 
 			$sql = "SELECT id FROM projects ".$sql_addon." ORDER BY id DESC";
