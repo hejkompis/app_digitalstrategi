@@ -4,8 +4,8 @@
 
     date_default_timezone_set("Europe/Berlin");
 
-    define('gapi_email', 'projektsajten-acces@dss-projektstatistik.iam.gserviceaccount.com');
-    define('gapi_pass', 'DSS_Projektstatistik-46c29dda9497.p12');
+    define('gapi_email', 'analytics@digital-strategi-statistik.iam.gserviceaccount.com');
+    define('gapi_pass', 'Digital_Strategi_Statistik-9bfb05b57067.p12');
 
     // Skapar konstanten ROOT. Vet alltid vilken som är vår huvudadress: everythingsthlm.se
     define('ROOT', $_SERVER['HTTP_HOST']);
