@@ -230,9 +230,6 @@
 
 			$ga = new gapi(gapi_email, gapi_pass);
 
-			$sql = "DELETE FROM account_data WHERE view_id = $clean_view_id AND stored_date < '$today'";
-			DB::query($sql);
-
 			// just date
 			$ga_object = $ga->requestReportData($clean_view_id, array('date'), $metrics);
 
@@ -259,18 +256,20 @@
 
 			$timestamp = time();
 
-			$sql = "SELECT stored_date FROM account_data WHERE view_id = $clean_view_id";
-			$data = DB::query($sql);
+			$sql = "DELETE FROM account_data WHERE view_id = $clean_view_id";
+			DB::query($sql);
 
 			foreach($ga_to_store as $dimensions) {
 
 				foreach($dimensions as $value) {
 
+					$clean_value = DB::clean($value);
+
 					$sql = "INSERT INTO account_data (view_id, dimensions, metrics, data_date, stored_date, timestamp) VALUES (
 						'".$clean_view_id."', 
-						'".$value['dimensions']."',
-						'".$value['metrics']."',
-						'".$value['data_date']."',
+						'".$clean_value['dimensions']."',
+						'".$clean_value['metrics']."',
+						'".$clean_value['data_date']."',
 						'".$today."',
 						".$timestamp."
 					)";
