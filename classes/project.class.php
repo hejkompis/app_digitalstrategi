@@ -161,6 +161,8 @@
 			// print_r($accounts);
 			// echo '</pre>';
 			// die;
+			
+			$maxDate = $project->end_date > strtotime('yesterday') ? strtotime('yesterday') : $project->end_date;
 
 			$output = [
 				'title'					=> $project->name.' - '.$project->client->name,
@@ -170,6 +172,7 @@
 				'summary' 				=> $total_summary,
 				'from'					=> $from,
 				'to' 					=> $to,
+				'maxDate' 				=> $maxDate,
 				'dates'					=> $dates,
 				'comparison' 			=> $comparison,
 				'comparison_total'		=> $comparison_total_by_day,

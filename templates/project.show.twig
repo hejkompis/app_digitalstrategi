@@ -85,7 +85,7 @@
 var startDate 	= '{{from|date("Y-m-d")}}';
 var endDate 	= '{{to|date("Y-m-d")}}';
 var minDate 	= '{{project.start_date|date("Y-m-d")}}';
-var maxDate 	= '{{project.end_date|date("Y-m-d")}}';
+var maxDate 	= '{{maxDate|date("Y-m-d")}}';
 
 $(document).ready(function() {
 
@@ -205,6 +205,8 @@ $(document).ready(function() {
 
 </script>
 
+	{% if not comparison%}
+
 	<div class="row m-b-lg">
 
 		<div class="col-xs-12 m-b-md">
@@ -303,67 +305,107 @@ $(document).ready(function() {
 
 				</div>
 
-				{% for dimension_name, dimension_data in summary %}
+				{% if dimensions %}
 
-					{% for dimension in dimensions %}
+					<div class="row">
+
+						<div class="col-xs-12 m-t m-b-md">
+
+							<div class="hr-divider">
+
+								<ul class="graph-tabs nav nav-pills hr-divider-content hr-divider-nav" role="tablist">
+
+									<li role="presentation" class="active">
+										<a href="#dimension-hide" aria-controls="dimension-hide" role="tab" data-toggle="tab">Ingen</a>
+									</li>
+
+									{% for dimension_name, dimension_data in summary %}
+
+										{% for dimension in dimensions %}
 						
-						{% if dimension.dimension_name == dimension_name %}
+											{% if dimension.dimension_name == dimension_name %}
 
-							<div class="row">
+												<li role="presentation">
+													<a href="#dimension-{{dimension.dimension_name}}" aria-controls="dimension-{{dimension.dimension_name}}" role="tab" data-toggle="tab">{{dimension.name}}</a>
+												</li>
 
-								<div class="col-xs-12 m-t m-b-md">
+											{% endif %}	
 
-									<div class="hr-divider">
-										<h3 class="hr-divider-content hr-divider-heading">
-											{{dimension.name}}
-										</h3>
-									</div>
-
-								</div>
-
-								<div class="col-xs-12 col-sm-6 col-md-4">
-
-									<ul class="list-group">
-
-										{% for key, val in dimension_data.variations %}
-											<li class="list-group-item">
-												{{key}} {{val.users}} besökare
-												<span class="list-group-progress" style="width: {{((val.users/dimension_data.summary.users)*100)|round}}%;"></span>
-											</li>
 										{% endfor %}
 
-									</ul>
+									{% endfor %}				
 
-								</div>
-
-								<div class="col-xs-12 col-sm-6 col-md-4">
-
-									<ul class="list-group">
-
-									{% for key, val in dimension_data.variations %}
-										<li class="list-group-item">
-											{{key}} {{val.goalCompletionsAll}} leads
-											<span class="list-group-progress" style="width: {{((val.goalCompletionsAll/dimension_data.summary.goalCompletionsAll)*100)|round}}%;"></span>
-										</li>
-									{% endfor %}
-
-									</ul>
-
-								</div>
+								</ul>
 
 							</div>
 
-						{% endif %}
+						</div>
 
-					{% endfor %}
+						<div class="tab-content">
 
-				{% endfor %}
+							<div role="tabpanel" class="col-xs-12 tab-pane fade in active" id="dimension-hide"></div>
+
+							{% for dimension_name, dimension_data in summary %}
+
+							{% for dimension in dimensions %}
+						
+								{% if dimension.dimension_name == dimension_name %}
+
+									<div role="tabpanel" class="col-xs-12 tab-pane fade" id="dimension-{{dimension.dimension_name}}">
+
+										<div class="row">
+
+											<div class="col-xs-12 col-sm-6 col-md-4">
+
+												<ul class="list-group">
+
+													{% for key, val in dimension_data.variations %}
+														<li class="list-group-item">
+															{{key}} {{val.users}} besökare
+															<span class="list-group-progress" style="width: {{((val.users/dimension_data.summary.users)*100)|round}}%;"></span>
+														</li>
+													{% endfor %}
+
+												</ul>
+
+											</div>
+
+											<div class="col-xs-12 col-sm-6 col-md-4">
+
+												<ul class="list-group">
+
+												{% for key, val in dimension_data.variations %}
+													<li class="list-group-item">
+														{{key}} {{val.goalCompletionsAll}} leads
+														<span class="list-group-progress" style="width: {{((val.goalCompletionsAll/dimension_data.summary.goalCompletionsAll)*100)|round}}%;"></span>
+													</li>
+												{% endfor %}
+
+												</ul>
+
+											</div>
+
+										</div>
+
+									</div>
+
+								{% endif %}
+
+							{% endfor %}
+
+							{% endfor %}
+
+						</div>
+
+					</div>
+
+				{% endif %}
 
 			</div>
 
 			{% if accounts|length > 1 %}
 
-				{% for key, account in accounts %}
+				{% for account_key, account in accounts %}
 
 					{% set account_users = 0 %}
 					{% for day in account.data %}
@@ -375,60 +417,160 @@ $(document).ready(function() {
 						{% set account_leads = account_leads + day.date.goalCompletionsAll %}
 					{% endfor %}
 
-					<div role="tabpanel" class="col-xs-12 tab-pane fade" id="total-summary-{{key}}">
+					<div role="tabpanel" class="col-xs-12 tab-pane fade" id="total-summary-{{account_key}}">
 
-						<div class="col-xs-12 col-sm-6 col-md-4">
+						<div class="row">
 
-							<div class="statcard p-a-md">
-								<h3 class="statcard-number">
-									{{account_users}}
-									{# <small class="delta-indicator delta-positive">5%</small> #}
-								</h3>
-								<span class="statcard-desc">Besökare under perioden</span>
+							<div class="col-xs-12 col-sm-6 col-md-4">
+
+								<div class="statcard p-a-md">
+									<h3 class="statcard-number">
+										{{account_users}}
+										{# <small class="delta-indicator delta-positive">5%</small> #}
+									</h3>
+									<span class="statcard-desc">Besökare under perioden</span>
+								</div>
+
+							</div>
+
+							<div class="col-xs-12 col-sm-6 col-md-4">
+
+								{% set actual_conversion_rate = ((account_leads / account_users)*100)|round %}
+
+								{% if actual_conversion_rate >= project.conversion_rate %}
+
+									{% set success = true %}
+
+								{% else %}
+
+									{% set success = false %}
+
+								{% endif %}
+
+								<div class="statcard p-a-md">
+									<h3 class="statcard-number">
+										{{account_leads}}
+										{% if success %}
+											<small class="delta-indicator delta-positive">{{actual_conversion_rate}}%</small>
+										{% else %}
+											<small class="delta-indicator delta-negative">{{actual_conversion_rate}}%</small>
+										{% endif %}
+									</h3>
+									<span class="statcard-desc">Konverteringar ({{project.conversion_rate}}% är målsiffran)</span>
+								</div>
+
+							</div>
+
+							<div class="col-xs-12 col-sm-6 col-md-4">
+
+								{% set desired_conversion_rate = ((project.conversion_rate * account_users)/100)|round %}
+
+								<div class="statcard p-a-md">
+									<h3 class="statcard-number">
+										{{desired_conversion_rate}}
+									</h3>
+									<span class="statcard-desc">Önskat antal konverteringar ({{project.conversion_rate}}%)</span>
+								</div>
+
 							</div>
 
 						</div>
 
-						<div class="col-xs-12 col-sm-6 col-md-4">
+						{% if dimensions %}
 
-							{% set actual_conversion_rate = ((account_leads / account_users)*100)|round %}
+							<div class="row">
 
-							{% if actual_conversion_rate >= project.conversion_rate %}
+								<div class="col-xs-12 m-t m-b-md">
 
-								{% set success = true %}
+									<div class="hr-divider">
 
-							{% else %}
+										<ul class="graph-tabs nav nav-pills hr-divider-content hr-divider-nav" role="tablist">
 
-								{% set success = false %}
+											<li role="presentation" class="active">
+												<a href="#dimension-{{account_key}}-hide" aria-controls="dimension-hide" role="tab" data-toggle="tab">Ingen</a>
+											</li>
 
-							{% endif %}
+											{% for dimension_name, dimension_data in summary %}
 
-							<div class="statcard p-a-md">
-								<h3 class="statcard-number">
-									{{account_leads}}
-									{% if success %}
-										<small class="delta-indicator delta-positive">{{actual_conversion_rate}}%</small>
-									{% else %}
-										<small class="delta-indicator delta-negative">{{actual_conversion_rate}}%</small>
-									{% endif %}
-								</h3>
-								<span class="statcard-desc">Konverteringar ({{project.conversion_rate}}% är målsiffran)</span>
+												{% for dimension in dimensions %}
+								
+													{% if dimension.dimension_name == dimension_name %}
+
+														<li role="presentation">
+															<a href="#dimension-{{account_key}}-{{dimension.dimension_name}}" aria-controls="dimension-{{account_key}}-{{dimension.dimension_name}}" role="tab" data-toggle="tab">{{dimension.name}}</a>
+														</li>
+
+													{% endif %}	
+
+												{% endfor %}
+
+											{% endfor %}				
+
+										</ul>
+
+									</div>
+
+								</div>
+
+								<div class="tab-content">
+
+									<div role="tabpanel" class="col-xs-12 tab-pane fade in active" id="dimension-{{account_key}}-hide"></div>
+
+									{% for dimension_name, dimension_data in summary %}
+
+									{% for dimension in dimensions %}
+								
+										{% if dimension.dimension_name == dimension_name %}
+
+											<div role="tabpanel" class="col-xs-12 tab-pane fade" id="dimension-{{account_key}}-{{dimension.dimension_name}}">
+
+												<div class="row">
+
+													<div class="col-xs-12 col-sm-6 col-md-4">
+
+														<ul class="list-group">
+
+															{% for key, val in dimension_data[account_key].variations %}
+																<li class="list-group-item">
+																	{{key}} {{val.users}} besökare
+																	<span class="list-group-progress" style="width: {{((val.users/dimension_data.summary.users)*100)|round}}%;"></span>
+																</li>
+															{% endfor %}
+
+														</ul>
+
+													</div>
+
+													<div class="col-xs-12 col-sm-6 col-md-4">
+
+														<ul class="list-group">
+
+														{% for key, val in dimension_data[account_key].variations %}
+															<li class="list-group-item">
+																{{key}} {{val.goalCompletionsAll}} leads
+																<span class="list-group-progress" style="width: {{((val.goalCompletionsAll/dimension_data.summary.goalCompletionsAll)*100)|round}}%;"></span>
+															</li>
+														{% endfor %}
+
+														</ul>
+
+													</div>
+
+												</div>
+
+											</div>
+
+										{% endif %}
+
+									{% endfor %}
+
+									{% endfor %}
+
+								</div>
+
 							</div>
 
-						</div>
-
-						<div class="col-xs-12 col-sm-6 col-md-4">
-
-							{% set desired_conversion_rate = ((project.conversion_rate * account_users)/100)|round %}
-
-							<div class="statcard p-a-md">
-								<h3 class="statcard-number">
-									{{desired_conversion_rate}}
-								</h3>
-								<span class="statcard-desc">Önskat antal konverteringar ({{project.conversion_rate}}%)</span>
-							</div>
-
-						</div>
+						{% endif %}
 
 					</div>
 
@@ -439,6 +581,8 @@ $(document).ready(function() {
 		</div>
 
 	</div>
+
+	{% endif %}
 
 	<div class="row m-b-lg">
 
@@ -1000,6 +1144,8 @@ $(document).ready(function() {
 
 	</div>
 
+	{% if not comparison %}
+
 	<div class="row m-b-lg">
 
 		{% if reports %}
@@ -1121,5 +1267,7 @@ $(document).ready(function() {
 		{% endif %}
 
 	</div>
+
+	{% endif %}
 
 </div>

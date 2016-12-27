@@ -509,10 +509,13 @@
 									$summary[$dimension][$account_key]['variations'][$metric][$key] += $val2;
 								}
 							}
-							// if(isset($summary[$dimension]['variations'][$metric]) && is_array($summary[$dimension]['variations'][$metric])) {
-							// 	usort($summary[$dimension]['variations'], "cmp_users");
-							// }
  						}
+ 						if(isset($summary[$dimension]['variations'])) {
+							ksort($summary[$dimension]['variations']);
+						}
+						if(isset($summary[$dimension][$account_key]['variations'])) {
+							ksort($summary[$dimension][$account_key]['variations']);
+						}
 					}
 				}
 			}
