@@ -2,7 +2,7 @@
 
 	class Client {
 
-		private $id, $name, $user, $projects, $online;
+		private $id, $name, $theme, $projects, $online;
 
 		public function __construct($client_id) {
 
@@ -13,6 +13,7 @@
 
 			$this->id 		= $data['id'];
 			$this->name 	= $data['name'];
+			$this->theme 	= $data['theme'];
 			$this->online 	= $data['online'];
 
 		}
@@ -112,8 +113,9 @@
 
 			$clean_input = DB::clean($input);
 
-			$sql = "INSERT INTO clients (name) VALUES (
-				'".$clean_input['name']."'
+			$sql = "INSERT INTO clients (name, theme) VALUES (
+				'".$clean_input['name']."',
+				'".$clean_input['theme']."'
 			)";
 			$id = DB::query($sql);
 
@@ -131,7 +133,8 @@
 
 			$sql = "
 			UPDATE clients SET 
-			name = '".$clean_input['name']."'
+			name = '".$clean_input['name']."',
+			theme = '".$clean_input['theme']."'
 			WHERE id = ".$clean_input['id'];
 
 			DB::query($sql);

@@ -19,6 +19,18 @@
 
 				</div>
 
+				<div class="form-group m-b-md">
+
+					<select name="theme" id="theme" class="form-control">
+
+						<option value="inverse">Välj tema</option>
+						<option value="inverse" {% if 'inverse' == client.theme %} selected="selected"{% endif %}>Mörkt</option>
+						<option value="light" {% if 'light' == client.theme %} selected="selected"{% endif %}>Ljust</option>
+
+					</select>
+
+				</div>
+
 				<div class="form-group">
 
 					<input type="submit" class="btn btn-primary" value="Uppdatera" />

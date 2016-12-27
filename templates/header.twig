@@ -10,7 +10,11 @@
         <title>Digital Strategi{% if title %} - {% endif %}{{title}}</title>    
         
         <!-- Bootstrap Dashboard Toolkit -->
-        <link href="/css/toolkit-inverse.min.css" rel="stylesheet">
+        {% if current_user %}
+            <link href="/css/toolkit-{{current_user.client.theme}}.min.css" rel="stylesheet">
+        {% else %}
+            <link href="/css/toolkit-inverse.min.css" rel="stylesheet">
+        {% endif %}
 
         <!-- Fontawesone -->
         {# <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"> #}

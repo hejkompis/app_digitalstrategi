@@ -8,7 +8,7 @@
 
 			$clean_id = DB::clean($id);
 
-			$sql = "SELECT id, name, company, email, admin, online FROM users WHERE id = ".$clean_id;
+			$sql = "SELECT id, name, client_id, email, admin, online FROM users WHERE id = ".$clean_id;
 			$data = DB::query($sql, true);
 
 			$user_has_access = self::user_has_access($data['id']);
@@ -17,7 +17,7 @@
 			$this->email 	= $data['email'];
 			$this->admin 	= $data['admin'];
 			$this->online 	= $data['online'];
-			$this->company 	= $data['company'];
+			$this->client 	= new Client($data['client_id']);
 			$this->user_has_access = $user_has_access;
 
 		}
@@ -67,7 +67,10 @@
 		}
 
 		public static function add($input = false) {
-			$output = ['title' => 'Skapa ny användare'];
+			$output = [
+				'title' => 'Skapa ny användare',
+				'clients' => Client::get_all()
+			];
 			return $output;
 		}
 
@@ -194,9 +197,9 @@
 
 			$scrambledPassword = hash_hmac("sha1", $clean_input["password"], "Au dessus de le kebab");
 
-			$sql = "INSERT INTO users (name, company, email, password, admin) VALUES (
+			$sql = "INSERT INTO users (name, client_id, email, password, admin) VALUES (
 				'".$clean_input['name']."',
-				'".$clean_input['company']."', 
+				'".$clean_input['client_id']."', 
 				'".$clean_input['email']."', 
 				'".$scrambledPassword."', 
 				".$clean_input['admin']."
@@ -229,7 +232,7 @@
 			$sql = "
 			UPDATE users SET 
 			name = '".$clean_input['name']."',
-			company = '".$clean_input['company']."',
+			client_id = '".$clean_input['client_id']."',
 			email = '".$clean_input['email']."',
 			admin = ".$clean_input['admin']."
 			WHERE id = ".$clean_input['id'];

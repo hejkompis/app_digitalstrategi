@@ -41,6 +41,13 @@
 			$clean_input	= DB::clean($input);
 			$project 		= new Project($clean_input['id']);
 
+			$current_user 	= User::is_logged_in();
+
+			if(!in_array($project->client->id, $current_user->user_has_access) && !$current_user->admin) {
+				header('Location: /project/showlist/');
+				die;
+			}
+
 			// Vi sätter compare-värdena till false så de finns med från början
 			$compare_from = false;
 			$compare_to = false;
@@ -192,9 +199,22 @@
 
 			$clean_input 	= DB::clean($input);
 			$user 			= User::is_logged_in();
+			$view_user 		= false;
 
 			if($user->admin) {
 				$projects = self::get_all();
+			}
+			if($user->admin && isset($input['id'])) {
+
+				$clean_id = DB::clean($input['id']);
+				$view_user = new User($clean_id);
+				if(!$view_user->admin) {
+					$projects = self::get_all($view_user->user_has_access);	
+				}
+				else {
+					$projects = self::get_all();
+				}
+				
 			}
 			elseif($user->admin == false) {
 				$projects = self::get_all($user->user_has_access);
@@ -203,6 +223,7 @@
 			$output = [
 				'title'		=> 'Projekt',
 				'user' 		=> $user,
+				'view_user' => $view_user,
 				'projects' 	=> $projects,
 				'page' 	=> 'project.showlist.twig'
 			];
@@ -264,7 +285,7 @@
 
 				$current_clients = trim($current_clients, ',');
 
-				$sql_addon = " WHERE client_id IN(".$current_clients.")";
+				$sql_addon = " WHERE client_id IN(".$current_clients.") AND online = 1";
 			}
 
 			$sql = "SELECT id FROM projects ".$sql_addon." ORDER BY id DESC";

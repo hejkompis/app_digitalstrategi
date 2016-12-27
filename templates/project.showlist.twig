@@ -4,7 +4,20 @@
 
 		<div class="col-xs-12 col-sm-6">
 
-			<h2>Projekt</h2>
+			<div class="dashhead">
+				
+				<div class="dashhead-titles">
+					<h6 class="dashhead-subtitle">
+						{% if view_user %}
+							{{view_user.name}}
+						{% else %}
+							{{user.name}}
+						{% endif %}
+					</h6>
+					<h3 class="dashhead-title">Projekt</h3>
+				</div>
+
+			</div>
 
 		</div>
 
