@@ -39,6 +39,12 @@
 		public static function show($input = false) {
 		
 			$clean_input	= DB::clean($input);
+
+			if(!isset($clean_input['id'])) {
+				header('Location: /project/showlist/');
+				die;
+			}
+
 			$project 		= new Project($clean_input['id']);
 
 			$current_user 	= User::is_logged_in();

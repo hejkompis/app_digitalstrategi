@@ -83,17 +83,17 @@
     $class = ucfirst($class);
 
     // Lägger in det som returneras från metoden i $twig_data som sedan läses in i Twig. 
-//    if(class_exists($class)) {
-//        if(method_exists($class, $method)) {
-            $twig_data = $class::$method($data);
-//        }
-//        else {
-//            $twig_data = Home::ohDearyMeQueueTheFourohfour();
-//        }
-//    }
-//    else {
-//        $twig_data = Home::ohDearyMeQueueTheFourohfour();
-//    }
+    if(class_exists($class)) {
+        if(method_exists($class, $method)) {
+          $twig_data = $class::$method($data);
+        }
+        else {
+            $twig_data = Home::fourOhFour();
+        }
+    }
+    else {
+        $twig_data = Home::fourOhFour();
+    }
 
     if(isset($twig_data['redirect_url'])) { 
         header('Location: '.$twig_data['redirect_url']); die; 
