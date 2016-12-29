@@ -352,8 +352,6 @@
 
 	 	public static function sendpasswordlink($input) {
 
-	 		echo ROOT; die;
-
 	 		$clean_input = DB::clean($input);
 	 		$ip = DB::get_user_ip();
 
