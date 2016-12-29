@@ -7,14 +7,7 @@
 
 		private function __construct() {
 
-			if(ROOT == "projektsajten.dev" || ROOT == "192.168.33.106") {
-				$db = ['url' => 'localhost', 'user' => 'root', 'password' => 'root', 'database' => 'projektsajten'];
-			}
-			else {
-				$db = ['url' => 'mysql525.loopia.se', 'user' => 'dss@d160488', 'password' => 'OL4c3P3nodej', 'database' => 'digitalstrategi_se_db_7'];
-			}
-
-			self::$mysqli = new mysqli($db['url'], $db['user'], $db['password'], $db['database']);
+			self::$mysqli = new mysqli(DB_S, DB_U, DB_P, DB_D);
 			self::$mysqli->query("SET NAMES 'utf8'");
 			self::$con = self::con();
 		}

@@ -10,6 +10,8 @@
     // Skapar konstanten ROOT. Vet alltid vilken som är vår huvudadress: everythingsthlm.se
     define('ROOT', $_SERVER['HTTP_HOST']);
 
+    require_once('db-settings.php');
+
    // autoload känner av att vi anropar klasser och laddar motsvarande fil. 
     function __autoload($class_name) {
 

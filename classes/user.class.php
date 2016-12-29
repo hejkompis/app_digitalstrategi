@@ -351,6 +351,9 @@
 	 	}
 
 	 	public static function sendpasswordlink($input) {
+
+	 		echo ROOT; die;
+
 	 		$clean_input = DB::clean($input);
 	 		$ip = DB::get_user_ip();
 
@@ -359,7 +362,7 @@
 
 	 		if($data) {
 
-	 			$address = 'digiplay.dev';
+	 			$address = ROOT;
 
 	 			$user_id = $data['id'];
 	 			$user_email = $data['email'];

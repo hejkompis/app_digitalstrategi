@@ -14,8 +14,9 @@
 			}
 
 			$output = [
-				'title'		=> 'Lägg till specifik respondent',
-				'settings' 	=> $settings
+				'title'		=> 'Inställningar',
+				'settings' 	=> $settings,
+				'email' 	=> gapi_email
 			];
 
 			return $output;
